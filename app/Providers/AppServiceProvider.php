@@ -42,6 +42,14 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->configureRateLimiting();
+
+        // سياسة كلمة المرور الموحّدة لكل نماذج الطلبات (إنشاء مستخدم/تغيير كلمة المرور)
+        \Illuminate\Validation\Rules\Password::defaults(
+            fn() => \Illuminate\Validation\Rules\Password::min(8)
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+        );
     }
 
     /**
@@ -77,6 +85,12 @@ class AppServiceProvider extends ServiceProvider
                         'message' => 'Too many backup requests. Please try again later.'
                     ], 429);
                 });
+        });
+
+        // Telegram يرسل التحديثات من مجموعة IP صغيرة وبمعدل عالٍ، فلا يصلح حدّ الـ api
+        // العام (60/دقيقة لكل IP) لأن 429 يجعل Telegram يتراجع ثم يُسقط التحديثات.
+        \Illuminate\Support\Facades\RateLimiter::for('telegram', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(600)->by($request->ip());
         });
 
         \Illuminate\Support\Facades\RateLimiter::for('reports', function (\Illuminate\Http\Request $request) {

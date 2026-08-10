@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\BackupRestoreRequest;
 use App\Jobs\RunBackupJob;
 use App\Models\BackupSetting;
+use App\Support\BackupLink;
 use App\Support\StorageManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -40,7 +41,7 @@ class BackupController extends Controller
     {
         $backupSetting = BackupSetting::firstOrFail();
         $disk = $backupSetting->disk;
-        $prefix = 'Backups/' . preg_replace('/[^a-z0-9\-_]+/i', '-', config('app.name', 'laravel'));
+        $prefix = StorageManager::backupPrefix();
         $files = StorageManager::listZipFiles($disk, $prefix);
 
         $data = array_map(function ($path) use ($disk) {
@@ -60,17 +61,23 @@ class BackupController extends Controller
     public function delete(Request $request)
     {
         $request->validate(['path' => ['required', 'string']]);
+        $path = BackupLink::safeBackupPath((string) $request->string('path'));
+
+        // أمان: منع Path Traversal والتأكد من حذف ملفات النسخ الاحتياطي فقط
+        if ($path === null) {
+            return response()->json(['error' => 'Invalid or unauthorized file path.'], 403);
+        }
+
         $backupSetting = BackupSetting::firstOrFail();
-        $deletedOk = Storage::disk($backupSetting->disk)->delete($request->string('path'));
-        return ['deleted' => (bool)$deletedOk];
+        $deletedOk = Storage::disk($backupSetting->disk)->delete($path);
+        return response()->json(['deleted' => (bool)$deletedOk]);
     }
     // حذف نسخة
     // Laravel 12 — نظيف وبسيط، مع تعليقات توضيحية
     public function delete_all()
     {
-        // اسم التطبيق لاستخدامه في المسار القياسي Backups/{APP_NAME}/...
-        $appName = config('app.name', 'laravel');
-        $safeApp = preg_replace('/[^a-z0-9\-_]+/i', '-', $appName);
+        // جذر النسخ القياسي Backups/{APP_NAME} من StorageManager (مصدر واحد للاتفاقية)
+        $rootPrefix = StorageManager::backupPrefix();
 
         // اجلب كل الأقراص المستخدمة في الإعدادات (قد يكون عندك أكثر من قرص)
         $disks = \App\Models\BackupSetting::query()
@@ -84,7 +91,7 @@ class BackupController extends Controller
 
         foreach ($disks as $disk) {
             $diskFs = \Illuminate\Support\Facades\Storage::disk($disk);
-            $prefix = "Backups/{$safeApp}";
+            $prefix = $rootPrefix;
 
             // لو المجلد غير موجود على هذا القرص، انتقل للي بعده
             if (!$diskFs->exists($prefix)) {
@@ -170,17 +177,22 @@ class BackupController extends Controller
     public function tempLink(Request $request)
     {
         $request->validate(['path' => ['required', 'string']]);
+
+        // نفس حارس delete(): لا نوقّع رابطًا إلا لملفات النسخ الاحتياطي
+        $path = BackupLink::safeBackupPath((string) $request->string('path'));
+        if ($path === null) {
+            return response()->json(['error' => 'Invalid or unauthorized file path.'], 403);
+        }
+
         $backupSetting = BackupSetting::firstOrFail();
 
-        // تشفير المسار Base64 URL-safe
-        $encode = fn(string $value) => rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
-
         // ننشئ URL موقّع إلى مسار تحميل داخلي
+        // التوقيع يتم على المسار النسبي ليطابق التحقق في routes/web.php
         $minutes = max(5, (int) $backupSetting->temp_link_expiry);
-        $signed = url()->temporarySignedRoute(
-            'backup.download',
-            now()->addMinutes($minutes),
-            ['disk' => $backupSetting->disk, 'p' => $encode($request->string('path'))]
+        $signed = BackupLink::temporaryDownloadUrl(
+            $backupSetting->disk,
+            $path,
+            $minutes
         );
 
         return ['url' => $signed, 'expires_in_minutes' => $minutes];

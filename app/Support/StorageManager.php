@@ -45,8 +45,21 @@ class StorageManager
     public static function buildPath(string $appName, string $type, string $key, \DateTimeInterface $when): string
     {
         $stamp = $when->format('Y-m-d_H-i');
-        $safeApp = preg_replace('/[^a-z0-9\-_]+/i', '-', $appName);
         $safeKey = preg_replace('/[^a-z0-9\-_]+/i', '-', $key);
-        return "Backups/{$safeApp}/{$type}/{$safeKey}/backup_{$type}_{$safeKey}_{$stamp}.zip";
+        return static::backupPrefix($appName) . "/{$type}/{$safeKey}/backup_{$type}_{$safeKey}_{$stamp}.zip";
+    }
+
+    /**
+     * جذر النسخ الاحتياطي لهذا التطبيق: Backups/{APP}
+     *
+     * المصدر الوحيد لهذه الاتفاقية — يستخدمه buildPath و BackupController::list
+     * و delete_all وحارس BackupLink::safeBackupPath، حتى لا يسمح الحارس بمسارات
+     * تطبيق آخر يشارك نفس القرص.
+     */
+    public static function backupPrefix(?string $appName = null): string
+    {
+        $appName = $appName ?? (string) config('app.name', 'laravel');
+
+        return 'Backups/' . preg_replace('/[^a-z0-9\-_]+/i', '-', $appName);
     }
 }

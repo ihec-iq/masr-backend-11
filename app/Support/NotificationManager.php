@@ -126,21 +126,12 @@ class NotificationManager
         $disk   = $log->storage_disk ?? ($settings->disk ?? 'local');
         $paths  = (array)($log->backup_paths ?? []);
         $expiryMinutes = max(1, (int)($settings->temp_link_expiry ?? 60)); // بالدقائق
-        $encode = fn(string $s) => rtrim(strtr(base64_encode($s), '+/', '-_'), '=');
         $tempUrls = [];
 
         foreach ($paths as $p) {
-            // توليد رابط موقع مؤقت
-            // نستخدم URL::temporarySignedRoute بدلاً من url()->temporarySignedRoute
-            // لضمان استخدام الـ APP_URL بشكل صحيح
-            $tempUrls[$p] = \Illuminate\Support\Facades\URL::temporarySignedRoute(
-                'backup.download',
-                now()->addMinutes($expiryMinutes),
-                [
-                    'disk' => $disk,
-                    'p'    => $encode($p), // ← استخدم p بدل path
-                ]
-            );
+            // توليد رابط موقع مؤقت عبر BackupLink لضمان تطابق التوقيع
+            // مع التحقق في routes/web.php (absolute: false) وإضافة APP_URL بعده
+            $tempUrls[$p] = BackupLink::temporaryDownloadUrl($disk, $p, $expiryMinutes);
         }
 
         // بناء الـ payload النصّي/المنظّم

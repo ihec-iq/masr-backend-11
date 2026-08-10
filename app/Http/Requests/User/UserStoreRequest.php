@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class UserStoreRequest extends FormRequest
 {
@@ -22,13 +23,17 @@ class UserStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'phone' => 'string',
-            'password' => 'string | required',
-            // 'sectionId' => 'integer | required',
-            'name' => ['required', 'string', 'min:2', 'max:255'],
-            'user_name' => ['required', 'string', 'min:2', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'roles' => ['required', 'array', 'exists:roles,id'],
+            'name'       => ['required', 'string', 'min:2', 'max:255'],
+            // user_name صار معرّف دخول في AuthController::login فلا بد أن يكون فريدًا
+            'user_name'  => ['required', 'string', 'min:2', 'max:255', 'unique:users,user_name'],
+            'email'      => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            // Password::defaults() مضبوطة في AppServiceProvider: 8 أحرف + أحرف كبيرة/صغيرة + أرقام + رموز
+            'password'   => ['required', 'string', Password::defaults(), 'confirmed'],
+            'any_device' => ['nullable', 'boolean'],
+            'active'     => ['nullable', 'boolean'],
+            'window_id'  => ['nullable', 'integer'],
+            'roles'      => ['nullable', 'array'],
+            'roles.*'    => ['integer', 'exists:roles,id'],
         ];
     }
 }

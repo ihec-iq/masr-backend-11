@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\v1\BackupController;
 use App\Http\Controllers\Api\v1\BackupHealthController;
 use App\Http\Controllers\Api\v1\BackupSettingsController;
 use Illuminate\Support\Facades\Route;
-// مبدئيًا بدون Sanctum، لاحقًا تضيف ->middleware('auth:sanctum')
+// كل مسارات النسخ الاحتياطي محمية بـ auth:sanctum ومحدودة بـ throttle:backup
 Route::middleware(['auth:sanctum', 'maintenance', 'locale', 'throttle:backup'])->prefix('backup')->group(function () {
     // الإعدادات
     Route::get('settings', [BackupSettingsController::class, 'show']);
@@ -30,11 +30,13 @@ Route::middleware(['auth:sanctum', 'maintenance', 'locale', 'throttle:backup'])-
     Route::post('test-webhook', [BackupController::class, 'testWebhook']); // اختبار إرسال Webhook
 });
 
-// فحص الحالة
-Route::get('health/backup', [BackupHealthController::class, 'status']);
-Route::prefix('backup/admins')->group(function () {
-    Route::get('/', [BackupAdminController::class, 'index']);
-    Route::post('/', [BackupAdminController::class, 'store']);
-    Route::post('/{backupAdmin}', [BackupAdminController::class, 'update']);
-    Route::delete('/{backupAdmin}', [BackupAdminController::class, 'destroy']);
+Route::middleware(['auth:sanctum', 'maintenance', 'locale', 'throttle:backup'])->group(function () {
+    // فحص الحالة
+    Route::get('health/backup', [BackupHealthController::class, 'status']);
+    Route::prefix('backup/admins')->group(function () {
+        Route::get('/', [BackupAdminController::class, 'index']);
+        Route::post('/', [BackupAdminController::class, 'store']);
+        Route::post('/{backupAdmin}', [BackupAdminController::class, 'update']);
+        Route::delete('/{backupAdmin}', [BackupAdminController::class, 'destroy']);
+    });
 });
