@@ -18,16 +18,27 @@ return [
     ],
 
     // ✅ مهم: تحديد الاستراتيجية الافتراضية
-    'strategy' => \Spatie\Backup\Tasks\Cleanup\Strategies\DefaultStrategy::class,
+    //
+    // لا بد أن تكون تحت المفتاح 'cleanup': الحزمة تقرأ
+    // config('backup.cleanup.strategy') و config('backup.cleanup.default_strategy')
+    // (راجع BackupServiceProvider). عندما كانت هذه القيم في المستوى الأعلى كانت
+    // تُتجاهل بالكامل، ويستعمل mergeConfigFrom قيم الحزمة الافتراضية بدلًا منها —
+    // أي حذف أقدم النسخ عند تجاوز 5GB بدل 50GB، والاحتفاظ سنتين بدل عشر.
+    'cleanup' => [
+        'strategy' => \Spatie\Backup\Tasks\Cleanup\Strategies\DefaultStrategy::class,
 
-    // إعدادات الاستراتيجية الافتراضية
-    'default_strategy' => [
-        'keep_all_backups_for_days' => 16,
-        'keep_daily_backups_for_days' => 16,
-        'keep_weekly_backups_for_weeks' => 8,
-        'keep_monthly_backups_for_months' => 12,
-        'keep_yearly_backups_for_years' => 10,
-        'delete_oldest_backups_when_using_more_megabytes_than' => 51200, // 50GB
+        // إعدادات الاستراتيجية الافتراضية
+        'default_strategy' => [
+            'keep_all_backups_for_days' => 16,
+            'keep_daily_backups_for_days' => 16,
+            'keep_weekly_backups_for_weeks' => 8,
+            'keep_monthly_backups_for_months' => 12,
+            'keep_yearly_backups_for_years' => 10,
+            'delete_oldest_backups_when_using_more_megabytes_than' => 51200, // 50GB
+        ],
+
+        'tries' => 1,
+        'retry_delay' => 0,
     ],
 
     // إشعارات البريد (سيتم تخصيصها من DB)
