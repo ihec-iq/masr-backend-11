@@ -17,6 +17,14 @@ class VoucherItemHistory extends Model
     {
         return $this->morphTo();
     }
+    public function Item()
+    {
+        return $this->belongsTo(Item::class, 'item_id', 'id');
+    }
+    public function InputVoucherItem(): BelongsTo
+    {
+        return $this->belongsTo(InputVoucherItem::class, 'input_voucher_item_id', 'id');
+    }
 
     public function Employee(): BelongsTo
     {

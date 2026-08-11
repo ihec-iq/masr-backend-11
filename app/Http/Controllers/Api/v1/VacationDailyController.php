@@ -19,7 +19,7 @@ class VacationDailyController extends Controller
     public function index()
     {
 
-        $vacationDailies = VacationDaily::all();
+        $vacationDailies = VacationDaily::get();
 
         //return $this->ok($vacationDailies);
 
@@ -96,7 +96,7 @@ class VacationDailyController extends Controller
                 ' الى تاريخ' . $value->day_to . PHP_EOL .
                 '------------------------------------';
         }
- 
+
         return $result;
     }
     public function getDailyMyReport()

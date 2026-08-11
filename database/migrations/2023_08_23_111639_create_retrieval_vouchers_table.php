@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->string('number')->nullable();
             $table->date('date');
             $table->text('notes')->nullable();
-            $table->string('signature_person')->nullable();
             $table->foreignId('user_create_id')-> constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('user_update_id')-> constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');
             $table->softDeletes();

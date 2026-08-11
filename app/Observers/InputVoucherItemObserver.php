@@ -3,69 +3,71 @@
 namespace App\Observers;
 
 use App\Models\InputVoucherItem;
-use App\Models\VoucherItemHistory;
+use App\Models\InventoryMovement;
 
 class InputVoucherItemObserver
 {
-    /**
-     * Handle the InputVoucherItem "created" event.
-     */
     public function created(InputVoucherItem $inputVoucherItem): void
     {
-        VoucherItemHistory::create([
-            'input_voucher_item_id' => $inputVoucherItem->id,
-            'item_id' => $inputVoucherItem->item_id,
-            'voucher_item_historiable_id' => $inputVoucherItem->id,
-            'voucher_item_historiable_type' => InputVoucherItem::class,
-            'employee_id' => 1,
-            'price' => $inputVoucherItem->price,
-            'count' => $inputVoucherItem->count,
-            'notes' => $inputVoucherItem->notes,
-        ]);
+        $this->upsert($inputVoucherItem);
     }
 
-    /**
-     * Handle the InputVoucherItem "updated" event.
-     */
     public function updated(InputVoucherItem $inputVoucherItem): void
     {
-        //
-        $voucher = VoucherItemHistory::where([
-            'input_voucher_item_id' => $inputVoucherItem->input_voucher_item_id,
-            'voucher_item_historiable_id' => $inputVoucherItem->id,
-            'item_id' => $inputVoucherItem->item_id,
-            'voucher_item_historiable_type' => InputVoucherItem::class,
-        ])->first();
-        if ($voucher) {
-            $voucher->employee_id = $inputVoucherItem->employee_id;
-            $voucher->price = $inputVoucherItem->price;
-            $voucher->count = $inputVoucherItem->count;
-            $voucher->item_id = $inputVoucherItem->item_id;
-            $voucher->save();
-        }
+        $this->upsert($inputVoucherItem);
     }
 
-    /**
-     * Handle the InputVoucherItem "deleted" event.
-     */
     public function deleted(InputVoucherItem $inputVoucherItem): void
     {
-        //
+        InventoryMovement::query()
+            ->where('source_line_type', InputVoucherItem::class)
+            ->where('source_line_id', $inputVoucherItem->id)
+            ->delete();
     }
 
-    /**
-     * Handle the InputVoucherItem "restored" event.
-     */
     public function restored(InputVoucherItem $inputVoucherItem): void
     {
-        //
+        $this->upsert($inputVoucherItem);
     }
 
-    /**
-     * Handle the InputVoucherItem "force deleted" event.
-     */
-    public function forceDeleted(InputVoucherItem $inputVoucherItem): void
+    private function upsert(InputVoucherItem $inputVoucherItem): void
     {
-        //
+        $inputVoucher = $inputVoucherItem->inputVoucher;
+
+        if (!$inputVoucher || $inputVoucher->deleted_at !== null) {
+            return;
+        }
+
+        if ($inputVoucherItem->deleted_at !== null) {
+            return;
+        }
+
+        $qty = (int)($inputVoucherItem->count ?? 0);
+
+        InventoryMovement::query()->updateOrCreate(
+            [
+                'source_line_type' => InputVoucherItem::class,
+                'source_line_id' => $inputVoucherItem->id,
+            ],
+            [
+                'movement_type' => InventoryMovement::TYPE_INPUT,
+
+                'item_id' => (int)$inputVoucherItem->item_id,
+                'stock_id' => (int)$inputVoucher->stock_id,
+                'input_voucher_item_id' => (int)$inputVoucherItem->id,
+
+                'movable_type' => get_class($inputVoucher),
+                'movable_id' => (int)$inputVoucher->id,
+
+                'quantity' => +$qty,
+
+                'unit_price' => $inputVoucherItem->price !== null ? (int)$inputVoucherItem->price : null,
+                'value' => $inputVoucherItem->value !== null ? (int)$inputVoucherItem->value : null,
+
+                'employee_id' => null,
+                'movement_date' => $inputVoucher->date_receive ?? $inputVoucher->date,
+                'notes' => $inputVoucherItem->notes,
+            ]
+        );
     }
 }

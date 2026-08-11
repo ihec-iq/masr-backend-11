@@ -15,7 +15,7 @@ class VacationReasonController extends Controller
      */
     public function index()
     {
-        return $this->ok(VacationReasonResource::collection(VacationReason::all()));
+        return $this->ok(VacationReasonResource::collection(VacationReason::get()));
     }
 
     /**

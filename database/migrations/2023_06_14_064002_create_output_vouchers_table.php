@@ -10,16 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        //php artisan migrate:refresh --path=database/migrations/2023_06_14_064002_create_output_vouchers_table.php
+
         Schema::create('output_vouchers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('stock_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('employee_id')->constrained('employees')->onUpdate('cascade')->onDelete('cascade');
             $table->string('number')->nullable();
             $table->date('date');
             $table->string('number_bill')->nullable();
             $table->date('date_bill')->default(now());
             $table->text('notes')->nullable();
-            $table->string('signature_person')->nullable();
             $table->foreignId('user_create_id')->constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('user_update_id')->constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');
             $table->softDeletes();

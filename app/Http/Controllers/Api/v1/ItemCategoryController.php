@@ -76,6 +76,9 @@ class ItemCategoryController extends Controller
     public function destroy(string $id)
     {
         $data = ItemCategory::find($id);
+        if ($data->items()->count() > 0) {
+            return $this->error('This Category has Items !!!', $data, $status = 403);
+        }
         $data->delete();
 
         return $this->ok(null);

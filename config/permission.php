@@ -111,6 +111,12 @@ return [
     'register_octane_reset_listener' => false,
 
     /*
+     * أُضيف في v8: عند true يطلق الحزمة أحداث Role/Permission attached/detached.
+     * كان غياب المفتاح يجعله false ضمنيًا؛ نصرّح به ليطابق الملف ملفَ الحزمة.
+     */
+    'events_enabled' => false,
+
+    /*
      * Teams Feature.
      * When set to true the package implements teams using the 'team_foreign_key'.
      * If you want the migrations to register the 'team_foreign_key', you must
@@ -121,6 +127,11 @@ return [
      */
 
     'teams' => false,
+
+    /*
+     * يُستخدم فقط عند تفعيل teams أعلاه؛ نصرّح به لأن الحزمة تقرأه في v8.
+     */
+    'team_resolver' => \Spatie\Permission\DefaultTeamResolver::class,
 
     /*
      * Passport Client Credentials Grant

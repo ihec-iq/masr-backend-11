@@ -20,7 +20,7 @@ class UserSeeder1 extends Seeder
     {
         //region Roles
 
-        $permissions = Permission::all();
+        $permissions = Permission::get();
         $adminRole = Role::create(['name' => 'Administrator']);
         $adminRole->syncPermissions($permissions); // This line can be adjusted based on your needs
 
@@ -821,7 +821,7 @@ INSERT INTO `employees` (`name`, `is_person`, `section_id`, `user_id`, `id_card`
         '
         );
 
-        $employees = Employee::all();
+        $employees = Employee::get();
         foreach ($employees as $employee) {
             Bonus::create([
                 'employee_id' => $employee->id,

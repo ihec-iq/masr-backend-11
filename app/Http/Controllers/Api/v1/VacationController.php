@@ -74,6 +74,8 @@ class VacationController extends Controller
      */
     public function store(VacationStoreRequest $request)
     {
+        $this->authorize('create', Vacation::class);
+        
         $data = Vacation::create([
             'employee_id' => $request->employee_id,
             'old_record' => $request->old_record,
@@ -87,7 +89,7 @@ class VacationController extends Controller
     public function makeVacation()
     {
 
-        $employees = Employee::all();
+        $employees = Employee::get();
 
         $data = [];
         foreach ($employees as $employee) {
@@ -114,6 +116,10 @@ class VacationController extends Controller
             withSum('VacationDaily as sumDaily', 'record')
             ->withSum('VacationTime as sumTime', 'record')
             ->withSum('VacationSick as sumSick', 'record')->find($id);
+        
+        if ($vacation) {
+            $this->authorize('view', $vacation);
+        }
 
         return $this->ok(new VacationResource($vacation));
     }

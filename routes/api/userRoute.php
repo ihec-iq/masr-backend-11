@@ -1,16 +1,12 @@
 <?php
 
-use App\Http\Controllers\Api\v1\EmployeeCenterController;
-use App\Http\Controllers\Api\V1\EmployeeController;
-use App\Http\Controllers\Api\v1\EmployeePositionController;
-use App\Http\Controllers\Api\v1\EmployeeTypeController;
 use App\Http\Controllers\Api\v1\PermissionController;
 use App\Http\Controllers\Api\v1\RoleController;
 use App\Http\Controllers\Api\v1\SectionController;
 use App\Http\Controllers\Api\v1\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('/user')->middleware(['auth:sanctum', 'maintenance', 'locale'])->group(function () {
+Route::middleware(['auth:sanctum', 'maintenance', 'locale'])->prefix('/user')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::get('/get_lite', [UserController::class, 'getLite']);
     Route::get('/filter', [UserController::class, 'filter']);
@@ -21,7 +17,7 @@ Route::prefix('/user')->middleware(['auth:sanctum', 'maintenance', 'locale'])->g
     Route::delete('/delete/{id}', [UserController::class, 'destroy']);
 });
 
-Route::prefix('/section')->group(function () {
+Route::middleware(['auth:sanctum', 'maintenance', 'locale'])->prefix('/section')->group(function () {
     Route::get('/', [SectionController::class, 'index']);
     Route::get('/{id}', [SectionController::class, 'show']);
     Route::post('/store', [SectionController::class, 'store']);
@@ -31,13 +27,13 @@ Route::prefix('/section')->group(function () {
     Route::delete('/delete/{id}', [SectionController::class, 'destroy']);
 });
 
-Route::prefix('/role')->middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'maintenance', 'locale'])->prefix('/role')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/', [RoleController::class, 'index']);
     Route::post('/', [RoleController::class, 'store']);
     Route::get('/{id}', [RoleController::class, 'show']);
     Route::post('/{id}', [RoleController::class, 'update']);
     Route::delete('/delete/{id}', [RoleController::class, 'destroy']);
 });
-Route::prefix('/permission')->middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'maintenance', 'locale'])->prefix('/permission')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/', [PermissionController::class, 'index']);
 });

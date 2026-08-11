@@ -22,13 +22,22 @@ class InputVoucherStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            
             'itemId' => 'integer |exists:items,id',
             //'inputVoucherStateId' => 'integer |exists:input_voucher_states,id',
-            'number' => 'string',
+            'number' => 'string|unique:input_vouchers,number',
             'date' => 'date',
             //'notes' => 'string',
             //'requestedBy' => 'string',
-            'signaturePerson' => 'string|nullable',
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'itemId.integer' => __('validation.integer', ['attribute' => 'item']),
+            'itemId.exists' => __('validation.exists', ['attribute' => 'item']),
+            'number.unique' => __('validation.unique', ['attribute' => 'voucher number']),
+            'date.date' => __('validation.date', ['attribute' => 'date']),
         ];
     }
 }

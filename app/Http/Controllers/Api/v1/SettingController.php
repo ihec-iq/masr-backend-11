@@ -16,7 +16,7 @@ class SettingController extends Controller
      */
     public function index()
     {
-        return $this->ok(SettingResource::collection(Setting::all())); // Retrieve all settings
+        return $this->ok(SettingResource::collection(Setting::get())); // Retrieve all settings
     }
 
 

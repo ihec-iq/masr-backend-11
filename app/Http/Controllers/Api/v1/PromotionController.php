@@ -21,7 +21,7 @@ class PromotionController extends Controller
      */
     public function index()
     {
-        $data = Promotion::all();
+        $data = Promotion::get();
         return $this->ok(PromotionResource::collection($data));
     }
 
@@ -53,19 +53,26 @@ class PromotionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PromotionStoreRequest $request)
+    public function store(Request $request)
     {
         //return $request->all();
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'degree_stage_id' => 'required|exists:bonus_degree_stages,id',
+            'number' => 'required|string',
+            'issue_date' => 'required|date',
+            'notes' => 'nullable|string',
+        ]);
         try {
-            $data = Promotion::create($request->validated());
+            $data = Promotion::create($validated);
             // must to check employee have level up promotion_degree_stage_id
-            if ($data->Employee->degree_stage_id < $request->degree_stage_id) {
+            if ($data->Employee->degree_stage_id < $validated['degree_stage_id']) {
                 $numberOfYear = 4;
                 $data->Employee->update([
-                    'date_last_promotion' => $request->issue_date,
-                    'date_next_promotion' => Carbon::parse($request->issue_date)->addYears($numberOfYear),
-                    'number_last_promotion' => $request->number,
-                    'degree_stage_id' => $request->degree_stage_id,
+                    'date_last_promotion' => $validated['issue_date'],
+                    'date_next_promotion' => Carbon::parse($validated['issue_date'])->addYears($numberOfYear),
+                    'number_last_promotion' => $validated['number'],
+                    'degree_stage_id' => $validated['degree_stage_id'],
                 ]);
             }
             return $this->ok(new PromotionResource($data));
@@ -85,18 +92,25 @@ class PromotionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PromotionStoreRequest $request, Promotion $promotion)
+    public function update(Request $request, Promotion $promotion)
     {
         try {
-            $promotion->update($request->validated());
+            $validated = $request->validate([
+                'employee_id' => 'required|exists:employees,id',
+                'degree_stage_id' => 'required|exists:bonus_degree_stages,id',
+                'number' => 'required|string',
+                'issue_date' => 'required|date',
+                'notes' => 'nullable|string',
+            ]);
+            $promotion->update($validated);
             // must to check employee have level up promotion_degree_stage_id to update it
             $employee = $promotion->Employee;
-            if ($employee->degree_stage_id < $request->degree_stage_id) {
+            if ($employee->degree_stage_id < $validated['degree_stage_id']) {
                 $employee->update([
-                    'date_last_promotion' => $request->issue_date,
-                    'date_next_promotion' => Carbon::parse($request->issue_date)->addYears(4),
-                    'number_last_promotion' => $request->number,
-                    'degree_stage_id' => $request->degree_stage_id,
+                    'date_last_promotion' => $validated['issue_date'],
+                    'date_next_promotion' => Carbon::parse($validated['issue_date'])->addYears(4),
+                    'number_last_promotion' => $validated['number'],
+                    'degree_stage_id' => $validated['degree_stage_id'],
                 ]);
             }
             // re check employee date promotion

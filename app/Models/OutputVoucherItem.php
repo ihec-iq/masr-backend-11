@@ -13,7 +13,7 @@ class OutputVoucherItem extends Model
 
     protected $guarded = [];
 
-    public function Voucher(): BelongsTo
+    public function OutputVoucher(): BelongsTo
     {
         return $this->belongsTo(OutputVoucher::class, 'output_voucher_id', 'id');
     }

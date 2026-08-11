@@ -23,6 +23,7 @@ class DocumentResource extends JsonResource
             'description' => $this->description,
             'extension' => $this->extension,
             'linkId' => $this->documentable_id,
+            'numberBill' => $this->number_bill,
         ];
     }
 

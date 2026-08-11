@@ -15,7 +15,7 @@ class RetrievalVoucherItem extends Model
 
     protected $fillable = ['output_voucher_item_id'];
 
-    public function Voucher(): BelongsTo
+    public function RetrievalVoucher(): BelongsTo
     {
         return $this->belongsTo(RetrievalVoucher::class, 'retrieval_voucher_id', 'id');
     }

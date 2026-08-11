@@ -14,11 +14,11 @@ class UserHrSeeder extends Seeder
      */
     public function run(): void
     {
-        $employees = Employee::all();
+        $employees = Employee::get();
         foreach ($employees as $key => $employee) {
             UserHr::create(
                 [
-                    'employee_id' => $employee->id, 
+                    'employee_id' => $employee->id,
                     'title' => 'bonus ' . $key,
                     'issue_date' => now(),
                     'degree_stage_id' => 67,

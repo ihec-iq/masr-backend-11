@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->text('description')->nullable();
-            $table->foreignId('user_create_id')->constrained(table: 'users', indexName: 'idCreateCategory')->onUpdate('cascade')->onDelete('cascade')->default('1');
-            $table->foreignId('user_update_id')->constrained(table: 'users', indexName: 'idUpdateCategory')->onUpdate('cascade')->onDelete('cascade')->default('1');
+            $table->foreignId('user_create_id')->default('1')->constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_update_id')->default('1')->constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

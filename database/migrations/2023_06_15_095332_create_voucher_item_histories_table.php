@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedBigInteger('voucher_item_historiable_id');
             $table->string('voucher_item_historiable_type');
-            $table->integer('price');
-            $table->integer('count');
+            $table->bigInteger('price');
+            $table->bigInteger('count');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

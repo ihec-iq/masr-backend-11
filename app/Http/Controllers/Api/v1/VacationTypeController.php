@@ -14,7 +14,7 @@ class VacationTypeController extends Controller
      */
     public function index()
     {
-        return $this->ok(VacationTypeResource::collection(VacationType::all()));
+        return $this->ok(VacationTypeResource::collection(VacationType::get()));
     }
 
     /**

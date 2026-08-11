@@ -13,92 +13,86 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $data = UserResource::collection(User::all());
+        $data = UserResource::collection(User::orderByDesc('updated_at')->get());
 
         return $this->ok($data);
     }
     public function getLite()
     {
-        $data = UserLiteResource::collection(User::all());
+        $data = UserLiteResource::collection(User::get());
 
         return $this->ok($data);
     }
     public function filter(Request $request)
     {
-        $request->filled('limit') ? $limit = $request->limit : $limit = 10;
+        // بدون سقف: limit سالب يُلغي الترقيم كليًا ويعيد كل الجدول في استجابة واحدة
+        $request->validate(['limit' => ['nullable', 'integer', 'min:1', 'max:100']]);
+        $limit = $request->integer('limit', 10) ?: 10;
 
-        $data = User::orderBy('id', 'desc');
+        $query = User::query();
 
-        if (!$request->isNotFilled('email') && $request->email != '') {
-            $data = $data->orWhere('email', 'like', '%' . $request->email . '%');
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
         }
-        if (!$request->isNotFilled('name') && $request->name != '') {
-            $data = $data->orWhere('name', 'like', '%' . $request->name . '%');
-            $data = $data->orWhere('email', 'like', '%' . $request->name . '%');
+        if ($request->filled('name')) {
+            $name = $request->name;
+            $query->where(function ($q) use ($name) {
+                $q->where('name', 'like', '%' . $name . '%')
+                  ->orWhere('email', 'like', '%' . $name . '%');
+            });
         }
-        if (!$request->isNotFilled('sectionId') && $request->sectionId != '') {
-            $data = $data->Where('section_id', $request->sectionId);
+        if ($request->filled('sectionId')) {
+            $query->where('section_id', $request->sectionId);
         }
 
-        $data = $data->paginate($limit);
-
-        if (empty($data) || $data == null) {
-            return $this->error(__('general.loadFailed'));
-        } else {
-            return $this->ok(new UserResourceCollection($data));
-        }
+        $data = $query->orderBy('updated_at', 'desc')->paginate($limit);
+        return $this->ok(new UserResourceCollection($data));
     }
 
     public function store(UserStoreRequest $request)
     {
-        $user_id = 1;
-        if (Auth::check()) {
-            $user_id = Auth::id();
-        }
-        $user = new User();
-        $user->active = false;
-        $user->active = false;
-        if (isset($request->user_type)) {
-            $user->user_type = $request->user_type;
-        }
-        // $user->invite_code=$this->generateNumber(6);
-        //
-        $user->name = $request->name;
-        $user->user_name = $request->user_name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->any_device = (isset($request->any_device) && $request->any_device != '') ? $request->any_device : 0;
-        $user->active = (isset($request->active) && $request->active != '') ? $request->active : 0;
-        if ($request->window_id == null) {
-            $user->window_id = 1;
-        } else {
-            $user->window_id = $request->window_id;
-        }
-        $user->user_id = $user_id;
-
         try {
-            $user->save();
-            //    if(isset($request->role_id)) $user->assignRole($request->role_id);
+            $creatorId = Auth::id() ?? 1;
+            $validate = $request->validated();
+            $userData = [
+                'name'        => $validate['name'],
+                'user_name'   => $validate['user_name'],
+                'email'       => $validate['email'],
+                'password'    => Hash::make($validate['password']),
+                // الحقول الاختيارية تُقرأ من الطلب لأن validated() لا تُرجع المفاتيح الغائبة
+                'any_device'  => $request->boolean('any_device'),
+                // الافتراضي مفعّل: login يرفض active = 0 فإغفال الحقل كان ينشئ حسابًا معطّلًا صامتًا
+                'active'      => $request->boolean('active', true),
+                'window_id'   => $request->integer('window_id', 1),
+                'user_id'     => $creatorId,
+            ];
 
-            $access_token = $user->createToken($request->email)->plainTextToken;
-            $user = User::find($user->id);
-            foreach ($request->roles as $role_id) {
-                (new RoleController())->set_role($role_id, $user->id);
+            $user = User::create($userData);
+
+            $accessToken = $user->createToken($user->email)->plainTextToken;
+
+            if (!empty($request->roles)) {
+                $roles = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
+                $user->syncRoles($roles);
             }
 
+            $user->refresh();
+
             return $this->ok([
-                'user' => new UserResource($user),
-                'token' => $access_token,
+                'user'  => new UserResource($user),
+                'token' => $accessToken,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            Log::error('User Store Error: ' . $e->getMessage());
+
             return $this->error(__('general.saveUnsuccessfully'));
-            // return $this->error($e->getMessage(), __('general.saveUnsuccessfully'));
         }
     }
 
@@ -111,68 +105,79 @@ class UserController extends Controller
 
     public function update(Request $request, $user_id)
     {
-
-        //$user = new Request(['user_id' => $user_id]);
-        $Validate = $request->validate([
-            // 'id' => ['integer', 'exists:users,id'],
-            'name' => ['required', 'string', 'min:2', 'max:255'],
-            'user_name' => ['required', 'string', 'min:2', 'max:255'],
-            //'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            // 'password' => ['nullable','required', 'confirmed', Rules\Password::defaults()],
-        ]);
- 
         $user = User::find($user_id);
-        if (!isset($user) || $user == null || $user == '') {
+        if (!$user) {
             return $this->error(__('general.saveUnsuccessfully'));
         }
-        // if ($user->email != $request->email) {
-        //     $validate = $request->validate([
-        //         'name' => ['required', 'string', 'min:2', 'max:255'],
-        //         'user_name' => ['required', 'string', 'min:2', 'max:255'],
-        //         'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-        //         'roles' => ['required', 'array', 'exists:roles,id'],
-        //     ]);
-        // }
+
+        $request->validate([
+            'name'      => ['required', 'string', 'min:2', 'max:255'],
+            // user_name صار معرّف دخول في AuthController::login فلا بد أن يكون فريدًا
+            'user_name' => ['required', 'string', 'min:2', 'max:255', 'unique:users,user_name,' . $user->id],
+            'email'     => ['nullable', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            // نفس سياسة الإنشاء: لا يجوز أن يتجاوز مسار التعديل قواعد كلمة المرور
+            'password'  => ['nullable', 'string', Password::defaults(), 'confirmed'],
+            'window_id' => ['nullable', 'integer'],
+            'roles'     => ['nullable', 'array'],
+            'roles.*'   => ['integer', 'exists:roles,id'],
+        ]);
+
         $user->name = $request->name;
         $user->user_name = $request->user_name;
-        isset($request->email) && $request->email != '' ? $user->email = $request->email : '';
-        isset($request->password) && $request->password != '' ? $user->password = Hash::make($request->password) : '';
-        $user->any_device = (isset($request->any_device) && $request->any_device != '') ? $request->any_device : 0;
-        $user->active = (isset($request->active) && $request->active != '') ? $request->active : 0;
-
-        if ($request->window_id == null) {
-            $user->window_id = 1;
-        } else {
-            $user->window_id = $request->window_id;
+        if ($request->filled('email')) {
+            $user->email = $request->email;
+        }
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        // نحافظ على القيمة الحالية عند غياب المفتاح حتى لا يُعطَّل الحساب بتعديل جزئي
+        $user->any_device = $request->boolean('any_device', $user->any_device);
+        $user->active = $request->boolean('active', $user->active);
+        // filled() وليس input(): window_id عمود NOT NULL، وإرسال null صراحةً كان يكسر الحفظ
+        if ($request->filled('window_id')) {
+            $user->window_id = $request->integer('window_id');
         }
 
         $user->save();
-        $access_token = $user->createToken($request->email)->plainTextToken;
-        $user->roles()->detach();
-        foreach ($request->roles as $role_id) {
-            $user->assignRole($role_id);
-        }
-        return $this->ok([
-            'user' => new UserResource($user),
-            'token' => $access_token,
-        ], __('general.saveSuccessfully'));
 
-        //return $this->error(__('general.saveUnsuccessfully'));
+        // has() وليس empty() حتى يتمكن العميل من مسح كل الأدوار بإرسال roles: []
+        if ($request->has('roles')) {
+            $roles = Role::whereIn('id', (array) $request->input('roles', []))->pluck('name')->toArray();
+            $user->syncRoles($roles);
+        }
+
+        $payload = ['user' => new UserResource($user)];
+
+        // نُصدر توكن فقط عندما يعدّل المستخدم بياناته بنفسه (توافق مع العميل القديم)،
+        // فإصدار توكن لمستخدم آخر يعني تسليم المدير جلسةً تنتحل شخصيته.
+        if (Auth::id() === $user->id) {
+            $payload['token'] = $user->createToken($user->email ?: $user->user_name)->plainTextToken;
+        }
+
+        return $this->ok($payload, __('general.saveSuccessfully'));
     }
-    public function updateMyPassword(Request $request)
+
+    public function updateMyPassword(UpdateMyPasswordRequest $request)
     {
-        $user = User::find(Auth::user()->id);
-        if (!isset($user) || $user == null || $user == '') {
-            return $this->error(__('general.saveUnsuccessfully'));
+        $user = Auth::user();
+        if (!$user || !Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'Current password does not match.'
+            ], 422);
         }
-        isset($request->password) && $request->password != '' ? $user->password = Hash::make($request->password) : '';
+
+        $user->password = Hash::make($request->password);
         $user->save();
-        $access_token = $user->createToken($user->email)->plainTextToken;
+
+        // إبطال كل التوكنات السابقة بعد تغيير كلمة المرور (تطرد أي جلسة مسروقة)
+        // ثم إصدار توكن جديد ليواصل العميل الحالي عمله كما كان سابقًا.
+        $user->tokens()->delete();
+        $token = $user->createToken($user->email ?: $user->user_name)->plainTextToken;
+
         return $this->ok([
-            'user' => new UserResource($user),
-            'token' => $access_token,
+            'user'  => new UserResource($user),
+            'token' => $token,
         ], __('general.saveSuccessfully'));
-        //return $this->error(__('general.saveUnsuccessfully'));
     }
 
     public function active($id)

@@ -107,22 +107,27 @@ class Employee extends Model
     {
         return $this->hasOne(Bonus::class)->latestOfMany();
     }
-
-    public function getNextDegreeStageAttribute(): ? BonusDegreeStageResource
+    public function getGetBonusEmployeeTotalAttribute($attraction = 4)
     {
-        return new BonusDegreeStageResource(BonusDegreeStage::find($this->degree_stage_id+1));
+        $hrDocument = new HrDocumentController();
+        return $hrDocument->check_bonus_employee_total(request()->merge(['attraction' => $attraction]), $this->id);
     }
+    public function getNextDegreeStageAttribute(): ?BonusDegreeStageResource
+    {
+        return new BonusDegreeStageResource(BonusDegreeStage::find($this->degree_stage_id + 1));
+    }
+
 
     public function getNextNoteAttribute()
     {
         $hrDocument = new HrDocumentController();
-        $results= $hrDocument->check_bonus_employee($this->id);
+        $results = $hrDocument->check_bonus_employee($this->id);
         $result = "";
         //$result = implode(', ', $results->Documents);
         foreach ($results['Documents'] as $key => $value) {
-            $result.=$value['title']."(". $value['number']." في ". $value['issue_date'].") ";
+            $result .= $value['title'] . "(" . $value['number'] . " في " . $value['issue_date'] . ") ";
         }
-        return  $result  ;
+        return  $result;
     }
 
 

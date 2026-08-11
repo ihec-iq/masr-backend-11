@@ -3,69 +3,78 @@
 namespace App\Observers;
 
 use App\Models\OutputVoucherItem;
-use App\Models\VoucherItemHistory;
+use App\Models\InventoryMovement;
 
 class OutputVoucherItemObserver
 {
-    /**
-     * Handle the OutputVoucherItem "created" event.
-     */
     public function created(OutputVoucherItem $outputVoucherItem): void
     {
-        VoucherItemHistory::create([
-            'input_voucher_item_id' => $outputVoucherItem->input_voucher_item_id,
-            'item_id' => $outputVoucherItem->item_id,
-            'voucher_item_historiable_id' => $outputVoucherItem->id,
-            'voucher_item_historiable_type' => OutputVoucherItem::class,
-            'employee_id' => $outputVoucherItem->employee_id,
-            'price' => $outputVoucherItem->price,
-            'count' => $outputVoucherItem->count * -1,
-            'notes' => $outputVoucherItem->notes,
-        ]);
+        $this->upsert($outputVoucherItem);
     }
 
-    /**
-     * Handle the OutputVoucherItem "updated" event.
-     */
     public function updated(OutputVoucherItem $outputVoucherItem): void
     {
-        //
-        $voucher = VoucherItemHistory::where([
-            'input_voucher_item_id' => $outputVoucherItem->input_voucher_item_id,
-            'item_id' => $outputVoucherItem->item_id,
-            'voucher_item_historiable_id' => $outputVoucherItem->id,
-            'voucher_item_historiable_type' => OutputVoucherItem::class,
-        ])->first();
-        if ($voucher) {
-            $voucher->employee_id = $outputVoucherItem->employee_id;
-            $voucher->price = $outputVoucherItem->price;
-            $voucher->count = $outputVoucherItem->count * -1;
-            $voucher->item_id = $outputVoucherItem->item_id;
-            $voucher->save();
-        }
+        $this->upsert($outputVoucherItem);
     }
 
-    /**
-     * Handle the OutputVoucherItem "deleted" event.
-     */
     public function deleted(OutputVoucherItem $outputVoucherItem): void
     {
-        //
+        InventoryMovement::query()
+            ->where('source_line_type', OutputVoucherItem::class)
+            ->where('source_line_id', $outputVoucherItem->id)
+            ->delete();
     }
 
-    /**
-     * Handle the OutputVoucherItem "restored" event.
-     */
     public function restored(OutputVoucherItem $outputVoucherItem): void
     {
-        //
+        $this->upsert($outputVoucherItem);
     }
 
-    /**
-     * Handle the OutputVoucherItem "force deleted" event.
-     */
-    public function forceDeleted(OutputVoucherItem $outputVoucherItem): void
+    private function upsert(OutputVoucherItem $outputVoucherItem): void
     {
-        //
+        $outputVoucher = $outputVoucherItem->outputVoucher;
+        $inputVoucherItem = $outputVoucherItem->inputVoucherItem;
+        $inputVoucher = $inputVoucherItem?->inputVoucher;
+
+        if (!$outputVoucher || !$inputVoucherItem || !$inputVoucher) {
+            return;
+        }
+
+        if (
+            $outputVoucher->deleted_at !== null ||
+            $inputVoucherItem->deleted_at !== null ||
+            $inputVoucher->deleted_at !== null ||
+            $outputVoucherItem->deleted_at !== null
+        ) {
+            return;
+        }
+
+        $qty = (int)($outputVoucherItem->count ?? 0);
+
+        InventoryMovement::query()->updateOrCreate(
+            [
+                'source_line_type' => OutputVoucherItem::class,
+                'source_line_id' => $outputVoucherItem->id,
+            ],
+            [
+                'movement_type' => InventoryMovement::TYPE_OUTPUT,
+
+                'item_id' => (int)$outputVoucherItem->item_id,
+                'stock_id' => (int)$inputVoucher->stock_id,
+                'input_voucher_item_id' => (int)$outputVoucherItem->input_voucher_item_id,
+
+                'movable_type' => get_class($outputVoucher),
+                'movable_id' => (int)$outputVoucher->id,
+
+                'quantity' => -$qty,
+
+                'unit_price' => $outputVoucherItem->price !== null ? (int)$outputVoucherItem->price : null,
+                'value' => $outputVoucherItem->value !== null ? (int)$outputVoucherItem->value : null,
+
+                'employee_id' => $outputVoucherItem->employee_id ?? $outputVoucher->employee_id,
+                'movement_date' => $outputVoucher->date,
+                'notes' => $outputVoucherItem->notes,
+            ]
+        );
     }
 }

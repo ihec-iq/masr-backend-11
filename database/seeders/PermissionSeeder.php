@@ -10,118 +10,140 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         //region System Permissions
-        Permission::create(['name' => 'Administrator']);
-        Permission::create(['name' => 'dashboard']);
-        Permission::create(['name' => 'add user']);
-        Permission::create(['name' => 'edit user']);
-        Permission::create(['name' => 'delete user']);
-        Permission::create(['name' => 'show users']);
+        $permissions = [
+            // Administrator
+            ['name' => 'Administrator', 'name_ar' => 'المشرف'],
 
-        Permission::create(['name' => 'add archive']);
-        Permission::create(['name' => 'edit archive']);
-        Permission::create(['name' => 'delete archive']);
-        Permission::create(['name' => 'show archives']);
+            // User Management
+            ['name' => 'dashboard', 'name_ar' => 'لوحة التحكم'],
+            ['name' => 'add user', 'name_ar' => 'إضافة مستخدم'],
+            ['name' => 'edit user', 'name_ar' => 'تعديل مستخدم'],
+            ['name' => 'delete user', 'name_ar' => 'حذف مستخدم'],
+            ['name' => 'show users', 'name_ar' => 'عرض المستخدمين'],
 
-        Permission::create(['name' => 'add document']);
-        Permission::create(['name' => 'delete document']);
-        Permission::create(['name' => 'show documents']);
+            // Archive Management
+            ['name' => 'add archive', 'name_ar' => 'إضافة أرشيف'],
+            ['name' => 'edit archive', 'name_ar' => 'تعديل أرشيف'],
+            ['name' => 'delete archive', 'name_ar' => 'حذف أرشيف'],
+            ['name' => 'show archives', 'name_ar' => 'عرض الأرشيف'],
 
-        Permission::create(['name' => 'add section']);
-        Permission::create(['name' => 'add user sections']);
-        Permission::create(['name' => 'edit section']);
-        Permission::create(['name' => 'delete section']);
-        Permission::create(['name' => 'show sections']);
+            // Document Management
+            ['name' => 'add document', 'name_ar' => 'إضافة مستند'],
+            ['name' => 'delete document', 'name_ar' => 'حذف مستند'],
+            ['name' => 'show documents', 'name_ar' => 'عرض المستندات'],
 
-        Permission::create(['name' => 'add archiveType']);
-        Permission::create(['name' => 'edit archiveType']);
-        Permission::create(['name' => 'delete archiveType']);
-        Permission::create(['name' => 'show archiveTypes']);
+            // Section Management
+            ['name' => 'add section', 'name_ar' => 'إضافة قسم'],
+            ['name' => 'add user sections', 'name_ar' => 'إضافة أقسام المستخدم'],
+            ['name' => 'edit section', 'name_ar' => 'تعديل قسم'],
+            ['name' => 'delete section', 'name_ar' => 'حذف قسم'],
+            ['name' => 'show sections', 'name_ar' => 'عرض الأقسام'],
 
-        Permission::create(['name' => 'add inputVoucher']);
-        Permission::create(['name' => 'edit inputVoucher']);
-        Permission::create(['name' => 'delete inputVoucher']);
-        Permission::create(['name' => 'show inputVouchers']);
+            // Archive Type Management
+            ['name' => 'add archiveType', 'name_ar' => 'إضافة نوع أرشيف'],
+            ['name' => 'edit archiveType', 'name_ar' => 'تعديل نوع أرشيف'],
+            ['name' => 'delete archiveType', 'name_ar' => 'حذف نوع أرشيف'],
+            ['name' => 'show archiveTypes', 'name_ar' => 'عرض أنواع الأرشيف'],
 
-        Permission::create(['name' => 'show storage']);
+            // Voucher Management
+            ['name' => 'add inputVoucher', 'name_ar' => 'إضافة سند إدخال'],
+            ['name' => 'edit inputVoucher', 'name_ar' => 'تعديل سند إدخال'],
+            ['name' => 'delete inputVoucher', 'name_ar' => 'حذف سند إدخال'],
+            ['name' => 'show inputVouchers', 'name_ar' => 'عرض سندات الإدخال'],
+            ['name' => 'show storage', 'name_ar' => 'عرض المخزن'],
+            ['name' => 'add outputVoucher', 'name_ar' => 'إضافة سند إخراج'],
+            ['name' => 'edit outputVoucher', 'name_ar' => 'تعديل سند إخراج'],
+            ['name' => 'delete outputVoucher', 'name_ar' => 'حذف سند إخراج'],
+            ['name' => 'show outputVouchers', 'name_ar' => 'عرض سندات الإخراج'],
+            ['name' => 'add directVoucher', 'name_ar' => 'إضافة سند مباشر'],
+            ['name' => 'edit directVoucher', 'name_ar' => 'تعديل سند مباشر'],
+            ['name' => 'delete directVoucher', 'name_ar' => 'حذف سند مباشر'],
+            ['name' => 'show directVouchers', 'name_ar' => 'عرض السندات المباشرة'],
+            ['name' => 'add retrievalVoucher', 'name_ar' => 'إضافة سند استرجاع'],
+            ['name' => 'edit retrievalVoucher', 'name_ar' => 'تعديل سند استرجاع'],
+            ['name' => 'delete retrievalVoucher', 'name_ar' => 'حذف سند استرجاع'],
+            ['name' => 'show retrievalVouchers', 'name_ar' => 'عرض سندات الاسترجاع'],
 
-        Permission::create(['name' => 'add outputVoucher']);
-        Permission::create(['name' => 'edit outputVoucher']);
-        Permission::create(['name' => 'delete outputVoucher']);
-        Permission::create(['name' => 'show outputVouchers']);
+            // Item Management
+            ['name' => 'add item', 'name_ar' => 'إضافة صنف'],
+            ['name' => 'edit item', 'name_ar' => 'تعديل صنف'],
+            ['name' => 'delete item', 'name_ar' => 'حذف صنف'],
+            ['name' => 'show items', 'name_ar' => 'عرض الأصناف'],
 
-        Permission::create(['name' => 'add directVoucher']);
-        Permission::create(['name' => 'edit directVoucher']);
-        Permission::create(['name' => 'delete directVoucher']);
-        Permission::create(['name' => 'show directVouchers']);
+            // Category Management
+            ['name' => 'add category item', 'name_ar' => 'إضافة فئة صنف'],
+            ['name' => 'edit category item', 'name_ar' => 'تعديل فئة صنف'],
+            ['name' => 'delete category item', 'name_ar' => 'حذف فئة صنف'],
+            ['name' => 'show categories item', 'name_ar' => 'عرض فئات الأصناف'],
 
-        Permission::create(['name' => 'add retrievalVoucher']);
-        Permission::create(['name' => 'edit retrievalVoucher']);
-        Permission::create(['name' => 'delete retrievalVoucher']);
-        Permission::create(['name' => 'show retrievalVouchers']);
+            // Vacation Management
+            ['name' => 'vacation office', 'name_ar' => 'إجازة مكتب'],
+            ['name' => 'vacation center', 'name_ar' => 'إجازة مركز'],
+            ['name' => 'vacation Report', 'name_ar' => 'تقرير الإجازات'],
+            ['name' => 'add vacation time', 'name_ar' => 'إضافة وقت إجازة'],
+            ['name' => 'edit vacation time', 'name_ar' => 'تعديل وقت إجازة'],
+            ['name' => 'delete vacation time', 'name_ar' => 'حذف وقت إجازة'],
+            ['name' => 'show vacations time', 'name_ar' => 'عرض أوقات الإجازات'],
+            ['name' => 'add vacation daily', 'name_ar' => 'إضافة إجازة يومية'],
+            ['name' => 'edit vacation daily', 'name_ar' => 'تعديل إجازة يومية'],
+            ['name' => 'delete vacation daily', 'name_ar' => 'حذف إجازة يومية'],
+            ['name' => 'show vacations daily', 'name_ar' => 'عرض الإجازات اليومية'],
+            ['name' => 'add vacation sick', 'name_ar' => 'إضافة إجازة مرضية'],
+            ['name' => 'edit vacation sick', 'name_ar' => 'تعديل إجازة مرضية'],
+            ['name' => 'delete vacation sick', 'name_ar' => 'حذف إجازة مرضية'],
+            ['name' => 'show vacations sick', 'name_ar' => 'عرض الإجازات المرضية'],
 
-        Permission::create(['name' => 'add item']);
-        Permission::create(['name' => 'edit item']);
-        Permission::create(['name' => 'delete item']);
-        Permission::create(['name' => 'show items']);
+            // Employee Management
+            ['name' => 'add employee', 'name_ar' => 'إضافة موظف'],
+            ['name' => 'edit employee', 'name_ar' => 'تعديل موظف'],
+            ['name' => 'delete employee', 'name_ar' => 'حذف موظف'],
+            ['name' => 'show employees', 'name_ar' => 'عرض الموظفين'],
 
-        Permission::create(['name' => 'add category item']);
-        Permission::create(['name' => 'edit category item']);
-        Permission::create(['name' => 'delete category item']);
-        Permission::create(['name' => 'show categories item']);
+            // Bonus Management
+            ['name' => 'add bonus', 'name_ar' => 'إضافة مكافأة'],
+            ['name' => 'edit bonus', 'name_ar' => 'تعديل مكافأة'],
+            ['name' => 'delete bonus', 'name_ar' => 'حذف مكافأة'],
+            ['name' => 'show bonuses', 'name_ar' => 'عرض المكافآت'],
 
-        Permission::create(['name' => 'vacation office']);
-        Permission::create(['name' => 'vacation center']);
-        Permission::create(['name' => 'vacation Report']);
+            // Promotion Management
+            ['name' => 'add promotion', 'name_ar' => 'إضافة ترقية'],
+            ['name' => 'edit promotion', 'name_ar' => 'تعديل ترقية'],
+            ['name' => 'delete promotion', 'name_ar' => 'حذف ترقية'],
+            ['name' => 'show promotions', 'name_ar' => 'عرض الترقيات'],
 
-        Permission::create(['name' => 'add vacation time']);
-        Permission::create(['name' => 'edit vacation time']);
-        Permission::create(['name' => 'delete vacation time']);
-        Permission::create(['name' => 'show vacations time']);
+            // HR Management
+            ['name' => 'add user hr', 'name_ar' => 'إضافة مستخدم موارد بشرية'],
+            ['name' => 'edit user hr', 'name_ar' => 'تعديل مستخدم موارد بشرية'],
+            ['name' => 'delete user hr', 'name_ar' => 'حذف مستخدم موارد بشرية'],
+            ['name' => 'show user hrs', 'name_ar' => 'عرض مستخدمي الموارد البشرية'],
 
-        Permission::create(['name' => 'add vacation daily']);
-        Permission::create(['name' => 'edit vacation daily']);
-        Permission::create(['name' => 'delete vacation daily']);
-        Permission::create(['name' => 'show vacations daily']);
+            // Special Permission
+            ['name' => 'has section only', 'name_ar' => 'لديه قسم فقط'],
 
-        Permission::create(['name' => 'add vacation sick']);
-        Permission::create(['name' => 'edit vacation sick']);
-        Permission::create(['name' => 'delete vacation sick']);
-        Permission::create(['name' => 'show vacations sick']);
+            // Settings Management
+            ['name' => 'add warehouse setting', 'name_ar' => 'إضافة إعداد المستودع'],
+            ['name' => 'edit warehouse setting', 'name_ar' => 'تعديل إعداد المستودع'],
+            ['name' => 'delete warehouse setting', 'name_ar' => 'حذف إعداد المستودع'],
+            ['name' => 'show warehouse settings', 'name_ar' => 'عرض إعدادات المستودع'],
+            ['name' => 'add employee setting', 'name_ar' => 'إضافة إعداد الموظف'],
+            ['name' => 'edit employee setting', 'name_ar' => 'تعديل إعداد الموظف'],
+            ['name' => 'delete employee setting', 'name_ar' => 'حذف إعداد الموظف'],
+            ['name' => 'show employee setting', 'name_ar' => 'عرض إعداد الموظف'],
+            // Backup Management
+            ['name' => 'show backups', 'name_ar' => 'عرض النسخ الاحتياطية'],
+            ['name' => 'create backup', 'name_ar' => 'إنشاء نسخة احتياطية'],
+            ['name' => 'delete backup', 'name_ar' => 'حذف نسخة احتياطية'],
+            ['name' => 'restore backup', 'name_ar' => 'استعادة نسخة احتياطية'],
+            ['name' => 'download backup', 'name_ar' => 'تحميل نسخة احتياطية'],
+            ['name' => 'manage backup settings', 'name_ar' => 'إدارة إعدادات النسخ الاحتياطية'],
+            ['name' => 'manage backup admins', 'name_ar' => 'إدارة مسؤولي النسخ الاحتياطية'],
+            ['name' => 'show backup logs', 'name_ar' => 'عرض سجلات النسخ الاحتياطية'],
+            ['name' => 'show backup health', 'name_ar' => 'عرض حالة النسخ الاحتياطية'],
+        ];
 
-        Permission::create(['name' => 'add employee']);
-        Permission::create(['name' => 'edit employee']);
-        Permission::create(['name' => 'delete employee']);
-        Permission::create(['name' => 'show employees']);
-
-        Permission::create(['name' => 'add bonus']);
-        Permission::create(['name' => 'edit bonus']);
-        Permission::create(['name' => 'delete bonus']);
-        Permission::create(['name' => 'show bonuses']);
-
-        Permission::create(['name' => 'add promotion']);
-        Permission::create(['name' => 'edit promotion']);
-        Permission::create(['name' => 'delete promotion']);
-        Permission::create(['name' => 'show promotions']);
-
-        Permission::create(['name' => 'add user hr']);
-        Permission::create(['name' => 'edit user hr']);
-        Permission::create(['name' => 'delete user hr']);
-        Permission::create(['name' => 'show user hrs']);
-        // Special permission
-        Permission::create(['name' => 'has section only']);
-
-
-
-        //endregion
-        Permission::create(['name' => 'add warehouse setting']);
-        Permission::create(['name' => 'edit warehouse setting']);
-        Permission::create(['name' => 'delete warehouse setting']);
-        Permission::create(['name' => 'show warehouse settings']);
-
-        Permission::create(['name' => 'add employee setting']);
-        Permission::create(['name' => 'edit employee setting']);
-        Permission::create(['name' => 'delete employee setting']);
-        Permission::create(['name' => 'show employee setting']);
+        foreach ($permissions as $permission) {
+            Permission::create($permission);
+        }
 
     }
 }

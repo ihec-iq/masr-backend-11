@@ -14,7 +14,7 @@ class RetrievalVoucherItemTypeController extends Controller
      */
     public function index()
     {
-        return RetrievalVoucherItemTypeResource::collection(RetrievalVoucherItemType::all());
+        return RetrievalVoucherItemTypeResource::collection(RetrievalVoucherItemType::get());
     }
 
     /**

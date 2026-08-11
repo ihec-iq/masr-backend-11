@@ -14,7 +14,7 @@ class InputVoucherStateController extends Controller
      */
     public function index()
     {
-        return $this->ok(GeneralIdNameResource::collection(InputVoucherState::all()));
+        return $this->ok(GeneralIdNameResource::collection(InputVoucherState::get()));
     }
 
     /**
@@ -43,7 +43,7 @@ class InputVoucherStateController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        
+
         $data = InputVoucherState::find($id);
         $data->name = $request->name;
         $data->save();

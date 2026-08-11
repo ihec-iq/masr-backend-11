@@ -13,7 +13,7 @@ class InputVoucherItem extends Model
 
     protected $guarded = [];
 
-    public function Voucher()
+    public function InputVoucher()
     {
         return $this->belongsTo(InputVoucher::class, 'input_voucher_id', 'id');
     }
@@ -28,7 +28,7 @@ class InputVoucherItem extends Model
         return $this->morphMany(VoucherItemHistory::class, 'voucher_item_historiable');
     }
 
-    public function outputItems(): HasMany
+    public function OutputVoucherItems(): HasMany
     {
         return $this->hasMany(OutputVoucherItem::class);
     }

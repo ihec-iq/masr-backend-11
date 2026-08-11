@@ -14,7 +14,7 @@ class SectionController extends Controller
 {
     public function index()
     {
-        $data = SectionResource::collection(Section::all());
+        $data = SectionResource::collection(Section::get());
 
         return $this->ok($data);
     }

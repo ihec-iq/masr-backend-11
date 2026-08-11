@@ -27,7 +27,6 @@ class InputVoucherResource extends JsonResource
             'State' => new InputVoucherStateResource($this->State),
             'Stock' => new StockResource($this->Stock),
             'Items' => InputVoucherItemResource::collection($this->Items),
-            'signaturePerson' => $this->signature_person,
             'requestedBy' => $this->requested_by,
             'itemsCount' => count($this->Items),
             'FilesDocument' => DocumentResource::collection($this->Documents),

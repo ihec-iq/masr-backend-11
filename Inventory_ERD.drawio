@@ -1,0 +1,86 @@
+<mxfile host="app.diagrams.net" modified="2026-02-01T12:00:00.000Z" agent="ChatGPT" version="20.8.16">
+  <diagram id="inventory-diagram" name="Inventory ERD">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="2000">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Items -->
+        <mxCell id="item" value="items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="50" y="50" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Stocks -->
+        <mxCell id="stock" value="stocks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="50" y="180" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Inventory Movements -->
+        <mxCell id="movement" value="inventory_movements" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="350" y="110" width="220" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Employees -->
+        <mxCell id="employee" value="employees" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="50" y="310" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Input Voucher -->
+        <mxCell id="input_voucher" value="input_vouchers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="700" y="30" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Input Voucher Items -->
+        <mxCell id="input_voucher_item" value="input_voucher_items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="700" y="130" width="220" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Output Voucher -->
+        <mxCell id="output_voucher" value="output_vouchers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;" vertex="1" parent="1">
+          <mxGeometry x="700" y="260" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Output Voucher Items -->
+        <mxCell id="output_voucher_item" value="output_voucher_items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;" vertex="1" parent="1">
+          <mxGeometry x="700" y="360" width="220" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Retrieval Voucher -->
+        <mxCell id="retrieval_voucher" value="retrieval_vouchers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;" vertex="1" parent="1">
+          <mxGeometry x="700" y="490" width="220" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Retrieval Voucher Items -->
+        <mxCell id="retrieval_voucher_item" value="retrieval_voucher_items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;" vertex="1" parent="1">
+          <mxGeometry x="700" y="590" width="240" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="endArrow=block;" edge="1" parent="1" source="item" target="movement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e2" style="endArrow=block;" edge="1" parent="1" source="stock" target="movement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e3" style="endArrow=block;" edge="1" parent="1" source="employee" target="movement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e4" style="endArrow=block;" edge="1" parent="1" source="input_voucher_item" target="movement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e5" style="endArrow=block;" edge="1" parent="1" source="output_voucher_item" target="movement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e6" style="endArrow=block;" edge="1" parent="1" source="retrieval_voucher_item" target="movement">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

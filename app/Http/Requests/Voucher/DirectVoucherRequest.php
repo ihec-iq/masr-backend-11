@@ -26,7 +26,6 @@ class DirectVoucherRequest extends FormRequest
             'date' => 'date',
             //'notes' => 'string',
             'requestEmployeeId' => 'exists:employees,id',
-            'signaturePerson' => 'string',
         ];
     }
 }

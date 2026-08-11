@@ -49,7 +49,7 @@ class EmployeeCenterSeeder extends Seeder
         EmployeeCenter::create(['name' => 'رمضان / 2','code'=> '2691']);
         EmployeeCenter::create(['name' => 'باب بغداد / 1','code'=> '1692']);
         EmployeeCenter::create(['name' => 'باب بغداد / 2','code'=> '2692']);
-        // $employees = Employee::all();
+        // $employees = Employee::get();
         // $employees->update(['employee_center_id' => 1]);
     }
 }

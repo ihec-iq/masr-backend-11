@@ -22,7 +22,7 @@ class ItemStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string',
+            'name' => 'string|unique:items,name',
             'code' => 'string |unique:items,code| nullable',
             'description' => 'string | nullable',
             'Category.id' => 'integer | exists:item_categories,id',

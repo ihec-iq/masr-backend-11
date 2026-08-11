@@ -26,7 +26,6 @@ class RetrievalVoucherRequest extends FormRequest
             'date' => 'date',
             //'notes' => 'string',
             'requestEmployeeId' => 'integer|exists:employees,id',
-            'signaturePerson' => 'string|nullable',
         ];
     }
 }

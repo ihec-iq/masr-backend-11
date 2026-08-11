@@ -635,12 +635,7 @@
           <mxGeometry width="30" height="30" as="geometry">
             <mxRectangle width="30" height="30" as="alternateBounds" />
           </mxGeometry>
-        </mxCell>
-        <mxCell id="nV_WbgXAIb3RESsScFf9-13" value="signature_person" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;" parent="nV_WbgXAIb3RESsScFf9-11" vertex="1">
-          <mxGeometry x="30" width="150" height="30" as="geometry">
-            <mxRectangle width="150" height="30" as="alternateBounds" />
-          </mxGeometry>
-        </mxCell>
+        </mxCell> 
         <mxCell id="36CrRXQepPdM2qvCS8Uf-55" value="input_voucher_states" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="1710" y="369" width="180" height="90" as="geometry" />
         </mxCell>
@@ -938,12 +933,7 @@
           <mxGeometry width="30" height="30" as="geometry">
             <mxRectangle width="30" height="30" as="alternateBounds" />
           </mxGeometry>
-        </mxCell>
-        <mxCell id="pVdByrB0k3auTPUX6VN6-31" value="signature_person" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;" parent="pVdByrB0k3auTPUX6VN6-29" vertex="1">
-          <mxGeometry x="30" width="150" height="30" as="geometry">
-            <mxRectangle width="150" height="30" as="alternateBounds" />
-          </mxGeometry>
-        </mxCell>
+        </mxCell> 
         <mxCell id="pVdByrB0k3auTPUX6VN6-35" value="output_voucher_items" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;" parent="1" vertex="1">
           <mxGeometry x="2020" y="840" width="180" height="240" as="geometry" />
         </mxCell>
@@ -1356,11 +1346,6 @@
         <mxCell id="0DbQ9s8Ff22Ch1rzfj1R-27" value="" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;editable=1;overflow=hidden;" parent="0DbQ9s8Ff22Ch1rzfj1R-26" vertex="1">
           <mxGeometry width="30" height="30" as="geometry">
             <mxRectangle width="30" height="30" as="alternateBounds" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="0DbQ9s8Ff22Ch1rzfj1R-28" value="signature_person" style="shape=partialRectangle;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;overflow=hidden;" parent="0DbQ9s8Ff22Ch1rzfj1R-26" vertex="1">
-          <mxGeometry x="30" width="150" height="30" as="geometry">
-            <mxRectangle width="150" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
         <mxCell id="0DbQ9s8Ff22Ch1rzfj1R-29" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmany;rounded=0;" parent="1" source="pVdByrB0k3auTPUX6VN6-72" target="0DbQ9s8Ff22Ch1rzfj1R-23" edge="1">

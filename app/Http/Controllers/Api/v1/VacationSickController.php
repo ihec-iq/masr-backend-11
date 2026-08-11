@@ -18,7 +18,7 @@ class VacationSickController extends Controller
      */
     public function index()
     {
-        $vacationDailies = VacationSick::all();
+        $vacationDailies = VacationSick::get();
 
         //return $this->ok($vacationDailies);
 

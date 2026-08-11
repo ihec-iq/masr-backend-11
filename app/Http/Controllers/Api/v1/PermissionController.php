@@ -15,7 +15,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $data = Permission::all();
+        $data = Permission::get();
         // $data['permissions'] =  $data->pluck('name');
 
         // return Auth::user()->getAllPermissions()->pluck('name') ;

@@ -4,6 +4,7 @@ namespace App\Http\Resources\Voucher;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Nette\Utils\Random;
 
 class InputVoucherItemVSelectResource extends JsonResource
 {
@@ -15,8 +16,15 @@ class InputVoucherItemVSelectResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'inputVoucherId' => 0,
+            'id' => $this->id, 
+            'inputVoucherItemId' => $this->inputVoucherItemId,
+            'InputVoucherItem' => [
+                'id' => $this->inputVoucherItemId,
+                'inputVoucherId' => $this->inputVoucherId,
+                'price' => $this->price/100,
+                'count' => $this->count,
+                'description' => $this->description,
+            ],
             'Item' => [
                 'id' => $this->itemId,
                 'name' => $this->itemName,
@@ -41,6 +49,7 @@ class InputVoucherItemVSelectResource extends JsonResource
             'price' => $this->price / 100,
             'value' => ($this->price * ($this->countIn - $this->countOut + $this->countReIn - $this->countReOut)) / 100,
             'notes' => $this->notes,
+            'fingerprint' => method_exists($this, 'generateFingerprint') ? $this->generateFingerprint() : Random::generate(10),
         ];
     }
 }

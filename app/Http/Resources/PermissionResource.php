@@ -17,6 +17,7 @@ class PermissionResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'name_ar' => $this->name_ar,
             // 'permissions' => $this->getAllPermissions()->pluck('name'),
 
         ];

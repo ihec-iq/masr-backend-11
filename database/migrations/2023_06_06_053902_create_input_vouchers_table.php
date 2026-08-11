@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('number_bill')->nullable();
             $table->date('date_bill')->default(now());
             $table->text('notes')->nullable();
-            $table->string('signature_person')->nullable();
             $table->string('requested_by')->nullable();
             $table->foreignId('user_create_id')->constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('user_update_id')->constrained(table: 'users')->onUpdate('cascade')->onDelete('cascade');

@@ -17,12 +17,12 @@ class BonusDegreeStageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => 'الدرجة '.$this->Degree->name . ' المرحلة ' . $this->Stage->name,
-            'Degree' => new GeneralIdNameResource($this->Degree),
-            'Stage' => new GeneralIdNameResource($this->Stage),
+            'title' =>   $this->title,
+            'Degree' => new GeneralIdNameResource($this->whenLoaded('Degree')),
+            'Stage' => new GeneralIdNameResource($this->whenLoaded('Stage')),
             'salary' => $this->salary,
             'yearlyBonus' => $this->yearly_bonus,
-            'yearlyService' => $this->yearly_service, 
+            'yearlyService' => $this->yearly_service,
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Requests\Employee\UpdateEmployeeBonusRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Http\Resources\Employee\EmployeeBigLiteResource;
 use App\Http\Resources\Employee\EmployeeBonusResource;
+use App\Http\Resources\Employee\EmployeeBonusTotalResource;
 use App\Http\Resources\Employee\EmployeeLiteBonusResource;
 use App\Http\Resources\Employee\EmployeeResource;
 use App\Http\Resources\Employee\EmployeeResourceCollection;
@@ -46,6 +47,7 @@ class EmployeeController extends Controller
             $query->whereIn('id', $employeeType);
         });
         #endregion
+        return EmployeeResource::collection($data->get());
         return EmployeeResource::collection(Cache::rememberForever('employees', function () use ($data) {
             return $data->get();
         }));
@@ -68,8 +70,8 @@ class EmployeeController extends Controller
             $query->whereIn('id', $employeeType);
         });
         #endregion
-         $data =  $data->get();
-         return EmployeeBigLiteResource::collection($data);
+        $data =  $data->get();
+        return EmployeeBigLiteResource::collection($data);
         // $data = Cache::remember('getLite_employees', 60*60*24, function () use ($data) {
         //     return $data->get();
         // });
@@ -122,7 +124,73 @@ class EmployeeController extends Controller
             return $this->ok(new EmployeeResourceCollection($data));
         }
     }
-public function filterLite(Request $request)
+    public function filterWithBonus(Request $request)
+    {
+        $filter_bill = [];
+        $name = $request->name ?? $request->employeeName;
+        $attraction = $request->attraction ?? 4;
+        $request->filled('limit') ? $limit = $request->limit : $limit = 10;
+        if ($name != '') {
+            $filter_bill[] = ['name', 'like', '%' . $name . '%'];
+        }
+        if (
+            !$request->isNotFilled('sectionId') &&
+            $request->sectionId != '' && $request->sectionId != '0' && $request->sectionId != '1'
+        ) {
+            $filter_bill[] = ['section_id', $request->sectionId];
+        }
+        if (
+            !$request->isNotFilled('isPerson') && $request->sectionId != ''
+        ) {
+            $filter_bill[] = ['is_person', $request->isPerson];
+        } else {
+            $filter_bill[] = ['is_person', true];
+        }
+        $data = Employee::orderBy('name')->where($filter_bill);
+        #region "Check Premission [vacation office ,vacation center ]"
+        $data = $data->whereHas('EmployeeType', function ($query) {
+            $employeeType = ["1"];
+            if (Auth::user()->hasAnyPermission(['vacation office'])) {
+                array_push($employeeType, "2");
+            }
+            if (Auth::user()->hasAnyPermission(['vacation center'])) {
+                array_push($employeeType, "3");
+            }
+            array_push($employeeType, "4");
+            $query->whereIn('id', $employeeType);
+        });
+
+        if ($request->isBound == 'true' || $request->isBound == 1) {
+            $SettingNumberDayesAlertBonus = "30";
+            $local = $SettingNumberDayesAlertBonus;
+            if (!$request->isNotFilled('bound') && $request->bound != '') {
+                $local =   $request->bound;
+            } else {
+                $local = Setting::where("key", "SettingNumberDayesAlertBonus")->first()->val_int;
+                if ($local) {
+                    $SettingNumberDayesAlertBonus = $local;
+                }
+            }
+
+            if ($local != '' && $local != null) {
+                $SettingNumberDayesAlertBonus = $local;
+            }
+
+            $data = $data->where(function ($query) use ($SettingNumberDayesAlertBonus) {
+                $query->whereRaw('DATEDIFF(date_next_bonus,NOW()) <= ?', $SettingNumberDayesAlertBonus);
+            });
+        }
+
+        #endregion
+        $data = $data->paginate($limit);
+
+        if (empty($data) || $data == null) {
+            return $this->error(__('general.loadFailed'));
+        } else {
+            return $this->ok(new PaginatedResourceCollection($data, EmployeeBonusTotalResource::class));
+        }
+    }
+    public function filterLite(Request $request)
     {
         $filter_bill = [];
         $request->filled('limit') ? $limit = $request->limit : $limit = 10;
@@ -161,16 +229,18 @@ public function filterLite(Request $request)
         if (empty($data) || $data == null) {
             return $this->error(__('general.loadFailed'));
         } else {
-            return $this->ok(new PaginatedResourceCollection ($data,EmployeeBigLiteResource::class));
+            return $this->ok(new PaginatedResourceCollection($data, EmployeeBigLiteResource::class));
         }
     }
     /**
      * Store a newly created resource in storage.
      */
-    public function store(UpdateEmployeeRequest $request)
+    public function store(StoreEmployeeRequest $request)
     {
+        $this->authorize('create', Employee::class);
+
         $user = User::firstOrCreate([
-            'name' => $request->name,
+            'name' => $request->validated()['name'],
             'password' => Hash::make('password'),
             'email' => rand(100000, 99999999999) . '@company.com',
             'active' => 1,
@@ -179,8 +249,11 @@ public function filterLite(Request $request)
         return $this->ok(new EmployeeResource($employee));
     }
 
-    public function update(UpdateEmployeeRequest $request, Employee $employee)
+    public function update(UpdateEmployeeRequest $request, string $id)
     {
+        $employee = Employee::find($id);
+
+        $this->authorize('update', $employee);
         $employee->update($request->validated());
 
         $hrController = new HrDocumentController();
@@ -197,48 +270,7 @@ public function filterLite(Request $request)
 
         return $this->ok(new EmployeeResource($employee));
     }
-    public function storeOld(StoreEmployeeRequest $request)
-    {
-        //
-        $user = User::create([
-            'name' => $request->name,
-            'password' => Hash::make('password'),
-            'email' => rand(100000, 99999999999) . '@company.com',
-            'active' => 1,
-        ]);
 
-        $employee = new Employee();
-        $employee->user_id = $user->id;
-
-        $employee->name = $request->name;
-        $employee->section_id = $request->sectionId;
-        $employee->is_person = $request->isPerson;
-        $employee->id_card = $request->idCard;
-        $employee->number = $request->number;
-        $employee->employee_position_id = $request->positionId;
-        $employee->move_section_id = $request->MoveSectionId;
-        $employee->is_move_section = $request->isMoveSection;
-        $employee->employee_type_id = $request->typeId;
-        $employee->employee_center_id = $request->centerId;
-
-        if (isset($request->dateWork)) {
-            $employee->date_work = $request->dateWork;
-        }
-        if (isset($request->telegramId)) {
-            $employee->telegramId = $request->telegramId;
-        }
-        $employee->init_vacation = (isset($request->initVacation) && $request->initVacation != '') ?
-            $request->initVacation : 0;
-        $employee->take_vacation = (isset($request->takeVacation) && $request->takeVacation != '') ?
-            $request->takeVacation : 0;
-        $employee->init_vacation_sick = (isset($request->initVacationSick) && $request->initVacationSick != '') ?
-            $request->initVacationSick : 0;
-        $employee->take_vacation_sick = (isset($request->takeVacationSick) && $request->takeVacationSick != '') ?
-            $request->takeVacationSick : 0;
-        $employee->save();
-
-        return $this->ok(new EmployeeResource($employee));
-    }
 
     /**
      * Display the specified resource.
@@ -259,35 +291,7 @@ public function filterLite(Request $request)
     /**
      * Update the specified resource in storage.
      */
-    public function updateOld(StoreEmployeeRequest $request, Employee $employee)
-    {
-        $employee->name = $request->name;
-        $employee->section_id = $request->sectionId;
-        $employee->move_section_id = $request->MoveSectionId;
-        $employee->is_move_section = $request->isMoveSection;
-        $employee->is_person = $request->isPerson;
-        $employee->id_card = $request->idCard;
-        $employee->number = $request->number;
-        $employee->employee_position_id = $request->positionId;
-        $employee->employee_type_id = $request->typeId;
-        $employee->employee_center_id = $request->centerId;
-        if (isset($request->dateWork)) {
-            $employee->date_work = $request->dateWork;
-        }
-        if (isset($request->telegramId)) {
-            $employee->telegramId = $request->telegramId;
-        }
-        $employee->init_vacation = (isset($request->initVacation) && $request->initVacation != '') ?
-            $request->initVacation : 0;
-        $employee->take_vacation = (isset($request->takeVacation) && $request->takeVacation != '') ?
-            $request->takeVacation : 0;
-        $employee->init_vacation_sick = (isset($request->initVacationSick) && $request->initVacationSick != '') ?
-            $request->initVacationSick : 0;
-        $employee->take_vacation_sick = (isset($request->takeVacationSick) && $request->takeVacationSick != '') ?
-            $request->takeVacationSick : 0;
-        $employee->save();
-        return $this->ok(new EmployeeResource($employee));
-    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -355,15 +359,11 @@ public function filterLite(Request $request)
         }
 
         $dataResult = $data->get();
-        //Log::alert('dataResult', ['dataResult' => $dataResult]);
         $hrController = new HrDocumentController();
         foreach ($dataResult as $employee) {
             $hrController->update_employee_date_bonus($employee->id);
         }
         $dataResult = $data->get();
-
-        //Log::alert('dataResult', ['dataResult' => $dataResult]);
-
         if (empty($dataResult) || $dataResult == null) {
             return $this->error(__('general.loadFailed'));
         } else {

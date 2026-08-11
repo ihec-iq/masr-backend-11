@@ -8,7 +8,9 @@ use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Arr;
 
 class RoleController extends Controller
 {
@@ -19,7 +21,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $data = Role::all();
+        $data = Role::get();
 
         if (empty($data) || $data == null) {
             return $this->error(__('general.loadFailed'));
@@ -39,16 +41,25 @@ class RoleController extends Controller
             'name' => 'required|string|unique:roles,name',
             'checkedPermission' => 'array|nullable',
         ]);
-
-        $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
-        if ($request->filled('checkedPermission')) {
-            $role->givePermissionTo($request->checkedPermission);
-        }
-
-        if (empty($role) || $role == null) {
-            return $this->error(__('general.saveUnsuccessfully'));
-        } else {
+        try {
+            $role = Role::create([
+                'name'       => $request->name,
+                'guard_name' => 'web'
+            ]);
+            if ($request->filled('checkedPermission')) {
+                $permissions = Arr::flatten($request->checkedPermission);
+                $validPermissions = Permission::whereIn('name', $permissions)
+                    ->pluck('name')
+                    ->toArray();
+                if (!empty($validPermissions)) {
+                    $role->syncPermissions($validPermissions);
+                }
+            }
+            $role->load('permissions');
             return $this->ok(new RolePermissionResource($role));
+        } catch (\Throwable $e) {
+            // \Log::error('Role creation error: ' . $e->getMessage());
+            return $this->error(__('general.saveUnsuccessfully'));
         }
     }
 
@@ -76,28 +87,38 @@ class RoleController extends Controller
     public function update(Request $request, int $id)
     {
         $request->validate([
-            'name' => 'nullable|string',
-            'permissions' => 'array|nullable',
-            'checkedPermission' => 'array|nullable',
+            'name'              => 'nullable|string',
+            'checkedPermission' => 'array|nullable', // لائحة الصلاحيات المختارة
         ]);
 
-        $data = Role::findById($id, 'web');
-        if ($request->filled('name')) {
-            $data->name = $request->name;
-        }
-        $data->update();
-        // if($request->filled('permissions'))
-        if ($request->filled('checkedPermission')) {
-            $data->syncPermissions();
-        }
-        //$data->syncPermissions($request->permissions);
-        $data->syncPermissions($request->checkedPermission);
-
-        if (empty($data) || $data == null) {
+        // ✅ العثور على الدور المطلوب أو إرجاع خطأ إذا غير موجود
+        $role = Role::findById($id, 'web');
+        if (!$role) {
             return $this->error(__('general.loadFailed'));
-        } else {
-            return $this->ok(new RolePermissionResource($data));
         }
+
+        // ✅ تحديث الاسم إذا تم إرساله
+        if ($request->filled('name')) {
+            $role->name = $request->name;
+            $role->save();
+        }
+
+        // ✅ تحديث الصلاحيات إذا تم إرسالها
+        if ($request->has('checkedPermission')) {
+            // هنا تأكدنا أنه تم إرسال صلاحيات، حتى لو كانت فارغة
+            $permissions = Arr::flatten($request->checkedPermission ?? []);
+
+            // تحقق من أن الصلاحيات المرسلة موجودة فعليًا
+            $validPermissions = Permission::whereIn('name', $permissions)->pluck('name')->toArray();
+
+            // تحديث الصلاحيات باستخدام syncPermissions
+            $role->syncPermissions($validPermissions);
+        }
+
+        // ✅ إعادة الدور مع الصلاحيات بعد التحديث
+        $role->load('permissions');
+
+        return $this->ok(new RolePermissionResource($role));
     }
 
     /**
@@ -106,13 +127,16 @@ class RoleController extends Controller
     public function set_role(int $role_id, int $user_id)
     {
         $user = User::find($user_id);
-        $user->assignRole($role_id);
-
         if (empty($user) || $user == null) {
             return $this->error(__('general.loadFailed'));
-        } else {
-            return $this->ok(new UserResource($user));
         }
+        $role = Role::findById($role_id, 'web');
+        if (empty($role) || $role == null) {
+            return $this->error(__('general.loadFailed'));
+        }
+        $user->assignRole($role);
+
+        return $this->ok(new UserResource($user));
     }
 
     /**

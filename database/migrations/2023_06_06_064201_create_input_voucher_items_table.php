@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('input_voucher_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('item_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('description')->nullable();
-            $table->integer('count')->nullable();
-            $table->integer('price')->nullable();
+            $table->bigInteger('count')->nullable();
+            $table->bigInteger('price')->nullable();
             $table->bigInteger('value')->nullable();
             $table->text('notes')->nullable();
             $table->softDeletes();

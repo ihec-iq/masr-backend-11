@@ -85,19 +85,26 @@ class BonusController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(BonusStoreRequest $request)
+    public function store(Request $request)
     {
-        //return $request->all();
+        //return $request->get();
         try {
-            $bonus = Bonus::create($request->validated());
+            $validated = $request->validate([
+                'employee_id' => 'required|exists:employees,id',
+                'degree_stage_id' => 'required|exists:bonus_degree_stages,id',
+                'number' => 'nullable|string',
+                'issue_date' => 'required|date',
+                'notes' => 'nullable|string',
+            ]);
+            $bonus = Bonus::create($validated());
             // must to check employee have level up degree_stage_id
             $employee = $bonus->Employee;
-            if ($employee->degree_stage_id < $request->degree_stage_id) {
+            if ($employee->degree_stage_id < $validated['degree_stage_id']) {
                 $employee->update([
-                    'date_last_bonus' => $request->issue_date,
-                    'date_next_bonus' => Carbon::parse($request->issue_date)->addYears(1),
-                    'degree_stage_id' => $request->degree_stage_id,
-                    'number_last_bonus' => $request->number,
+                    'date_last_bonus' => $validated['issue_date'],
+                    'date_next_bonus' => Carbon::parse($validated['issue_date'])->addYears(1),
+                    'degree_stage_id' => $validated['degree_stage_id'],
+                    'number_last_bonus' => $validated['number'],
                 ]);
             }
             return $this->ok(new BonusResource($bonus));
@@ -118,19 +125,26 @@ class BonusController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(BonusStoreRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         try {
             $bonus = Bonus::findOrFail($id);
-            $bonus->update($request->validated());
+            $validated = $request->validate([
+                'employee_id' => 'required|exists:employees,id',
+                'degree_stage_id' => 'required|exists:bonus_degree_stages,id',
+                'number' => 'nullable|string',
+                'issue_date' => 'required|date',
+                'notes' => 'nullable|string',
+            ]);
+            $bonus->update($validated);
             // must to check employee have level up degree_stage_id to update it
             $employee = $bonus->Employee;
-            if ($employee->degree_stage_id < $request->degree_stage_id) {
+            if ($employee->degree_stage_id < $validated['degree_stage_id']) {
                 $employee->update([
-                    'date_last_bonus' => $request->issue_date,
-                    'date_next_bonus' => Carbon::parse($request->issue_date)->addYears(1),
-                    'degree_stage_id' => $request->degree_stage_id,
-                    'number_last_bonus' => $request->number,
+                    'date_last_bonus' => $validated['issue_date'],
+                    'date_next_bonus' => Carbon::parse($validated['issue_date'])->addYears(1),
+                    'degree_stage_id' => $validated['degree_stage_id'],
+                    'number_last_bonus' => $validated['number'],
                 ]);
             }
             // re check employee date bonus

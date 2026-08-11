@@ -22,13 +22,12 @@ class OutputVoucher extends Model
     {
         return $this->hasMany(OutputVoucherItem::class)->orderBy('id', 'desc');
     }
-
-    public function Stock(): BelongsTo
-    {
-        return $this->belongsTo(Stock::class, 'stock_id', 'id');
-    }
     public function Employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+    public function UserCreated(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_create_id');
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Resources\Item\ItemResource;
 use App\Http\Resources\Stock\StockResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class VoucherItemHistoryResource extends JsonResource
 {
@@ -18,33 +19,33 @@ class VoucherItemHistoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         $item = null;
-        $type = null;
+        $type = "";
+        //Log::alert(message: $this->voucher_item_historiable->toArray());
         if ($this->voucher_item_historiable_type == 'App\\Models\\InputVoucherItem') {
             //$item = new InputVoucherItemResource($this->voucher_item_historiable);
             $type = 'سند ادخال';
             $item = [
-                'idVoucher' => $this->voucher_item_historiable->input_voucher_id,
-                'date' => $this->voucher_item_historiable->Voucher->date,
+                'idVoucher' => $this->voucher_item_historiable->InputVoucher->id,
+                'date' => $this->voucher_item_historiable->InputVoucher->date,
                 'Item' => new ItemResource($this->voucher_item_historiable->Item),
                 'Stock' => new StockResource($this->voucher_item_historiable->Stock),
                 'description' => $this->voucher_item_historiable->description,
             ];
         } elseif ($this->voucher_item_historiable_type == 'App\\Models\\OutputVoucherItem') {
             //$item = new OutputVoucherItemResource($this->voucher_item_historiable);
-            $type = 'سند تصدير';
+            $type = 'سند اصدار';
             $item = [
-                'idVoucher' => $this->voucher_item_historiable->output_voucher_id,
-                'date' => $this->voucher_item_historiable->Voucher->date,
+                'idVoucher' => $this->voucher_item_historiable->OutputVoucher->id,
+                'date' => $this->voucher_item_historiable->OutputVoucher->date,
                 'Item' => new ItemResource($this->voucher_item_historiable->inputVoucherItem->Item),
                 'Stock' => new StockResource($this->voucher_item_historiable->inputVoucherItem->Stock),
                 'description' => $this->voucher_item_historiable->inputVoucherItem->description,
             ];
-
         } elseif ($this->voucher_item_historiable_type == 'App\\Models\\RetrievalVoucherItem') {
             //$item = new OutputVoucherItemResource($this->voucher_item_historiable);
             $type = 'سند ارجاع';
             $item = [
-                'idVoucher' => $this->voucher_item_historiable->retrieval_voucher_id,
+                'idVoucher' => $this->voucher_item_historiable->RetrievalVoucher->id,
                 'date' => $this->voucher_item_historiable->Voucher->date,
                 'Item' => new ItemResource($this->voucher_item_historiable->Item),
                 'Stock' => new StockResource($this->voucher_item_historiable->inputVoucherItem->Stock),

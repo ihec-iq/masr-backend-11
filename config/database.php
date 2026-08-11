@@ -60,6 +60,20 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            // ✅ إعدادات Spatie DbDumper على ويندوز
+            'dump' => [
+                'dump_binary_path' => match (PHP_OS_FAMILY) {
+                    'Windows' => 'D:/xampp/mysql/bin', // بيئة التطوير (ويندوز)
+                    'Darwin'  => '/usr/local/mysql/bin', // اختياري: macOS
+                    default   => '', // أي نظام آخر (لينكس / VPS)
+                },
+                // حسب ما اتفقنا: نسخة متّسقة بدون قفل
+                'use_single_transaction' => true,
+                // وقت التنفيذ الأقصى (ثواني)
+                'timeout' => 3000,
+                // خيار إضافي آمن لمايSQL 8
+                'add_extra_option' => '--no-tablespaces',
+            ],
         ],
 
         'mariadb' => [
@@ -147,7 +161,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

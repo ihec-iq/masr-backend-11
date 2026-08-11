@@ -27,7 +27,6 @@ class InputVocherRequest extends FormRequest
             'date' => 'date',
             'notes' => 'string',
             'employeeRequestId' => 'exists:employees,id',
-            'signaturePerson' => 'string',
         ];
     }
 }

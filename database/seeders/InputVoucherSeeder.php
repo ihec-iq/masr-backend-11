@@ -18,8 +18,7 @@ class InputVoucherSeeder extends Seeder
             'requested_by' => 'مكتب كربلاء',
             'number' => '001',
             'date' => '2023-08-06',
-            'notes' => 'مستند ادخال كراسي مخزن',
-            'signature_person' => 'علي حميد',
+            'notes' => 'مستند ادخال كراسي مخزن', 
         ]);
         InputVoucher::create([
             'input_voucher_state_id' => 2,
@@ -27,7 +26,6 @@ class InputVoucherSeeder extends Seeder
             'number' => '002',
             'date' => '2023-08-07',
             'notes' => 'مستند ادخال مخزن',
-            'signature_person' => 'علي حميد',
         ]);
     }
 }

@@ -18,4 +18,8 @@ class BonusDegreeStage extends Model
     {
         return $this->belongsTo(BonusStage::class, 'bonus_stage_id');
     }
+    public function getTitleAttribute(): string
+    {
+        return 'الدرجة ' . $this->Degree->name . ' المرحلة ' . $this->Stage->name;
+    }
 }

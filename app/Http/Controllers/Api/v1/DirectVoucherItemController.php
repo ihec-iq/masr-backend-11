@@ -15,7 +15,7 @@ class DirectVoucherItemController extends Controller
      */
     public function index()
     {
-        $result = DirectVoucherItem::all();
+        $result = DirectVoucherItem::get();
 
         return $this->ok($result);
     }
@@ -26,7 +26,7 @@ class DirectVoucherItemController extends Controller
     public function getAvailableItemsVSelect()
     {
         // $result = DirectVoucherItem::select('item')->get();
-        $result = DirectVoucherItem::all();
+        $result = DirectVoucherItem::get();
 
         return $this->ok($result);
     }

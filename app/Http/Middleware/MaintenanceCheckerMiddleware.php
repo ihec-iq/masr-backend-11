@@ -15,7 +15,7 @@ class MaintenanceCheckerMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (env('MAINTENANCE') == 1) {
+        if (config('app_settings.maintenance_mode')) {
             return response()->json([
                 'success' => false,
                 'message' => 'the system Under Maintenance.'

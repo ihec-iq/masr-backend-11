@@ -84,6 +84,8 @@ class ArchiveController extends Controller
 
     public function store(ArchiveStoreRequest $request)
     {
+        $this->authorize('create', Archive::class);
+        
         $data = Archive::create([
             'title' => $request->title,
             'issue_date' => $request->issue_date,
@@ -129,36 +131,42 @@ class ArchiveController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $data = Archive::find($id);
-        if ($data) {
-            $data->title = $request->title;
-            $data->issue_date = $request->issue_date;
-            $data->number = $request->number;
-            $data->way = $request->way;
-            $data->description = $request->description;
-            $data->is_in = $request->is_in;
-            $data->user_id = Auth::user()->id;
-            $data->archive_type_id = $request->archive_type_id;
-            $data->save();
+        $archive = $this->archiveService->getArchiveById((int)$id);
+        
+        if ($archive) {
+            $this->authorize('update', $archive);
+            $archive->title = $request->title;
+            $archive->issue_date = $request->issue_date;
+            $archive->number = $request->number;
+            $archive->way = $request->way;
+            $archive->description = $request->description;
+            $archive->is_in = $request->is_in;
+            $archive->user_id = Auth::user()->id;
+            $archive->archive_type_id = $request->archive_type_id;
+            $archive->save();
              if ($request->hasfile('FilesDocument')) {
                 $document = new DocumentController();
                 $document->store_multi(
                     request: $request,
-                    documentable_id: $data->id,
+                    documentable_id: $archive->id,
                     documentable_type: Archive::class,
                     pathFolder: "archives"
                 );
             }
-            return $this->ok(new ArchiveResource($data));
+            return $this->ok(new ArchiveResource($archive));
         }
         return $this->ok(new ArchiveResource([]));
     }
 
     public function destroy(string $id)
     {
-        $data = Archive::find($id);
-        $data->documents()->delete();
-        $data->delete();
+        $archive = $this->archiveService->getArchiveById((int)$id);
+        
+        if ($archive) {
+            $this->authorize('delete', $archive);
+            $archive->documents()->delete();
+            $archive->delete();
+        }
 
         return $this->ok(null);
     }

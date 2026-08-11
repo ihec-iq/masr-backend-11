@@ -1,0 +1,215 @@
+<mxfile host="app.diagrams.net" modified="2026-02-01T12:30:00.000Z" agent="ChatGPT" version="20.8.16">
+  <diagram id="seq-diagram" name="Inventory Sequence Diagram">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1400">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Participants -->
+        <mxCell id="p_user" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="60" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p_front" value="Frontend / Client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="220" y="60" width="160" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p_api" value="Laravel API&#10;InventoryController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;" vertex="1" parent="1">
+          <mxGeometry x="460" y="50" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p_models" value="Models&#10;(Voucher + Items + InventoryMovement)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="720" y="40" width="260" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p_db" value="Database" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="40" width="120" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Lifelines -->
+        <mxCell id="l_user" value="" style="dashed=1;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="90" y="140" width="1" height="1120" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_front" value="" style="dashed=1;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="300" y="110" width="1" height="1150" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_api" value="" style="dashed=1;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="560" y="120" width="1" height="1140" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_models" value="" style="dashed=1;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="850" y="120" width="1" height="1140" as="geometry"/>
+        </mxCell>
+        <mxCell id="l_db" value="" style="dashed=1;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="120" width="1" height="1140" as="geometry"/>
+        </mxCell>
+
+        <!-- Section: Input Flow -->
+        <mxCell id="sec_in" value="INPUT (Add Stock) Flow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="170" width="1130" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages Input -->
+        <mxCell id="m1" value="Create Input Voucher + Items" style="endArrow=block;html=1;rounded=0;" edge="1" parent="1" source="p_user" target="p_front">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="250" as="sourcePoint"/>
+            <mxPoint x="300" y="250" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m2" value="POST /input-vouchers" style="endArrow=block;html=1;" edge="1" parent="1" source="p_front" target="p_api">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="300" as="sourcePoint"/>
+            <mxPoint x="560" y="300" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m3" value="Validate + Begin Transaction" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_api">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="350" as="sourcePoint"/>
+            <mxPoint x="620" y="350" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m4" value="Create InputVoucher" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="400" as="sourcePoint"/>
+            <mxPoint x="850" y="400" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m5" value="INSERT input_vouchers" style="endArrow=block;html=1;" edge="1" parent="1" source="p_models" target="p_db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="450" as="sourcePoint"/>
+            <mxPoint x="1110" y="450" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m6" value="Create InputVoucherItems (loop)" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="520" as="sourcePoint"/>
+            <mxPoint x="850" y="520" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m7" value="INSERT input_voucher_items" style="endArrow=block;html=1;" edge="1" parent="1" source="p_models" target="p_db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="570" as="sourcePoint"/>
+            <mxPoint x="1110" y="570" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m8" value="Create InventoryMovements (qty +) (loop)" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="640" as="sourcePoint"/>
+            <mxPoint x="850" y="640" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m9" value="INSERT inventory_movements" style="endArrow=block;html=1;" edge="1" parent="1" source="p_models" target="p_db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="690" as="sourcePoint"/>
+            <mxPoint x="1110" y="690" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m10" value="Commit + Return Voucher Summary" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_front">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="750" as="sourcePoint"/>
+            <mxPoint x="300" y="750" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="m11" value="Show Success" style="endArrow=block;html=1;" edge="1" parent="1" source="p_front" target="p_user">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="800" as="sourcePoint"/>
+            <mxPoint x="90" y="800" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Section: Output Flow -->
+        <mxCell id="sec_out" value="OUTPUT (Issue Stock) Flow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="860" width="1130" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Messages Output -->
+        <mxCell id="o1" value="Create Output Voucher + Items (employee)" style="endArrow=block;html=1;" edge="1" parent="1" source="p_user" target="p_front">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="940" as="sourcePoint"/>
+            <mxPoint x="300" y="940" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o2" value="POST /output-vouchers" style="endArrow=block;html=1;" edge="1" parent="1" source="p_front" target="p_api">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="990" as="sourcePoint"/>
+            <mxPoint x="560" y="990" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o3" value="Validate + Begin Transaction" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_api">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="1040" as="sourcePoint"/>
+            <mxPoint x="620" y="1040" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o4" value="Create OutputVoucher" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="1090" as="sourcePoint"/>
+            <mxPoint x="850" y="1090" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o5" value="INSERT output_vouchers" style="endArrow=block;html=1;" edge="1" parent="1" source="p_models" target="p_db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="1140" as="sourcePoint"/>
+            <mxPoint x="1110" y="1140" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o6" value="Create OutputVoucherItems (loop)" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="1210" as="sourcePoint"/>
+            <mxPoint x="850" y="1210" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o7" value="INSERT output_voucher_items" style="endArrow=block;html=1;" edge="1" parent="1" source="p_models" target="p_db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="1260" as="sourcePoint"/>
+            <mxPoint x="1110" y="1260" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o8" value="Create InventoryMovements (qty -) (loop)" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="1330" as="sourcePoint"/>
+            <mxPoint x="850" y="1330" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o9" value="INSERT inventory_movements" style="endArrow=block;html=1;" edge="1" parent="1" source="p_models" target="p_db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="1380" as="sourcePoint"/>
+            <mxPoint x="1110" y="1380" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o10" value="Commit + Return Voucher Summary" style="endArrow=block;html=1;" edge="1" parent="1" source="p_api" target="p_front">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="560" y="1440" as="sourcePoint"/>
+            <mxPoint x="300" y="1440" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="o11" value="Show Success" style="endArrow=block;html=1;" edge="1" parent="1" source="p_front" target="p_user">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="300" y="1490" as="sourcePoint"/>
+            <mxPoint x="90" y="1490" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

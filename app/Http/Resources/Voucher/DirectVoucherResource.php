@@ -20,8 +20,7 @@ class DirectVoucherResource extends JsonResource
             'number' => $this->number,
             'date' => $this->date,
             'notes' => $this->notes,
-            'Items' => DirectVoucherItemResource::collection($this->Items),
-            'signaturePerson' => $this->signature_person,
+            'Items' => DirectVoucherItemResource::collection($this->Items), 
             'Employee' => new EmployeeLiteResource($this->Employee),
             'itemsCount' => count($this->Items),
         ];

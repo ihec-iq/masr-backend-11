@@ -19,7 +19,9 @@ class GoogleDriveController extends Controller
             Google_Service_Drive::DRIVE_FILE,
             Google_Service_Drive::DRIVE,
         ]);
-        $client->refreshToken(env('GOOGLE_DRIVE_REFRESH_TOKEN'));
+        $client->setClientId(config('google.client_id'));
+        $client->setClientSecret(config('google.client_secret'));
+        $client->refreshToken(config('google.refresh_token'));
         // Create the Google Drive service
         $drive = new Google_Service_Drive($client);
 

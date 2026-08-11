@@ -21,8 +21,7 @@ class InputVoucherFactory extends Factory
             'employee_id' => fake()->numberBetween(1, 10),
             'number' => fake()->numberBetween(100, 99999),
             'date' => fake()->dateTimeBetween($startDate = '-1 years', $endDate = 'now'),
-            'notes' => fake()->sentence(),
-            'signature_person' => fake()->name(),
+            'notes' => fake()->sentence(), 
         ];
     }
 }
